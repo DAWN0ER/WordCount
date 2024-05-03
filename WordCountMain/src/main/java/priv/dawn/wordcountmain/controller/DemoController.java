@@ -10,7 +10,7 @@ import priv.dawn.wordcountmain.service.FileStorageService;
 public class DemoController {
 
     @Autowired
-    FileStorageService fileStorageService;
+    private FileStorageService fileStorageService;
 
     @PostMapping("/upload")
     public int uploadFileText(@RequestBody FileTextVO fileTextVO) {

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class FileStorageServiceImpl implements FileStorageService {
 
     @Autowired
-    FileMapper fileMapper;
+    private FileMapper fileMapper;
 
     @Override
     @Transactional

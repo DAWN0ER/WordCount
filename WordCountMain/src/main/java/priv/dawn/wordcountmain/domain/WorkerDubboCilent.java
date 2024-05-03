@@ -7,12 +7,20 @@ public class WorkerDubboCilent {
 
     public int startCountWord(int fileUID) {
 
-        return fileUID;
+        return fileUID % 2;
     }
 
     public float getProgress(int fileUID) {
-
-        return fileUID % 2 == 0 ? (fileUID % 1_000) / 10L : 100L;
+        System.out.println("use RPC: " + fileUID);
+        switch (fileUID % 3) {
+            case 0:
+                return 0f;
+            case 1:
+                return (fileUID % 1000) / 10f;
+            case 2:
+                return 100f;
+        }
+        return 0;
     }
 
 }
