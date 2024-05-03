@@ -1,0 +1,17 @@
+server:
+  port: 23302
+spring:
+  application:
+    name: worker-service
+dubbo:
+  application:
+    name: worker-service
+  registry:
+    address: nacos://127.0.0.1:8848
+    username: nacos
+    password: nacos
+  scan:
+    base-packages: priv.dawn.workers.service.impl
+  protocol:
+    name: dubbo
+    port: 33302
