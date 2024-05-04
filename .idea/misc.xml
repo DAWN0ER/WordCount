@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/WordCountMain/pom.xml" />
         <option value="$PROJECT_DIR$/Workers/pom.xml" />
+        <option value="$PROJECT_DIR$/Reducer/pom.xml" />
       </list>
     </option>
   </component>

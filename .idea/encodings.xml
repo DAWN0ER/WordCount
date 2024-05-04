@@ -3,6 +3,8 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/MapReduceService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/MapReduceService/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Reducer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Reducer/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/WordCountMain/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/WordCountMain/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/WordCountMain/src/main/resources/余华 活着.txt" charset="UTF-8" />

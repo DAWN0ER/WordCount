@@ -3,6 +3,11 @@ server:
 spring:
   application:
     name: worker-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/file_db?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
 #dubbo:
 #  application:
 #    name: worker-service
