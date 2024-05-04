@@ -1,16 +1,30 @@
 package priv.dawn.workers.service.impl;
 
-import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
 import priv.dawn.mapreduceapi.api.WorkerService;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.Executor;
 
-@DubboService
+//@DubboService
+@Service
 public class WorkerServiceImpl implements WorkerService {
 
-    @Override
-    public void loadFile(int fileUID, int chunkBegin, int chunkNum) {
+    private final Logger logger = LoggerFactory.getLogger(WorkerServiceImpl.class);
 
+    @Qualifier(value = "WorkerReadThreadPool")
+    @Resource
+    private Executor readThreadPool;
+
+    @Override
+    public int loadFile(int fileUID, int chunkBegin, int chunkNum) {
+
+        return 0;
     }
 
     @Override
@@ -22,4 +36,6 @@ public class WorkerServiceImpl implements WorkerService {
     public List<String> getWords(int fileUID) {
         return null;
     }
+
+
 }
