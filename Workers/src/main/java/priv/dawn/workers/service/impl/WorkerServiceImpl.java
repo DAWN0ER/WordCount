@@ -1,9 +1,11 @@
 package priv.dawn.workers.service.impl;
 
+import com.google.common.hash.Hashing;
 import com.hankcs.hanlp.classification.tokenizers.HanLPTokenizer;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import lombok.AllArgsConstructor;
+import org.apache.kafka.common.protocol.Message;
 import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +17,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
+import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.ChunkReadMapper;
 import priv.dawn.workers.pojo.ChunkDTO;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +47,7 @@ public class WorkerServiceImpl implements WorkerService {
     private ChunkReadMapper chunkReadMapper;
 
     @Autowired
-    private KafkaTemplate<String,String> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
     private static final String TOPIC = "word_count";
 
     // DONE: 2024/5/4 这边线程不够用了之后会抛出拒绝异常, 在这边捕获返回值就是已经进入线程池的chunk的id, 表示完成个数
@@ -58,7 +63,7 @@ public class WorkerServiceImpl implements WorkerService {
         for (ChunkDTO chunk : chunks) {
             try {
                 readThreadPool.execute(
-                        new processChunk(fileUID, chunkNum, chunkBegin, chunk)
+                        new processChunk(fileUID, chunk)
                 );
                 finished = finished + 1;
             } catch (RejectedExecutionException e) {
@@ -84,39 +89,47 @@ public class WorkerServiceImpl implements WorkerService {
     private class processChunk implements Runnable {
 
         private int fileUID;
-        private int chunkNum;
-        private int chunkBegin;
         private ChunkDTO chunk;
 
         @Override
         public void run() {
             logger.info(Thread.currentThread().getName() + " process file " + fileUID + " chunk " + chunk.getChunkId());
+            // 分词
             List<Term> terms = StandardTokenizer.segment(chunk.getContext()).stream()
                     .filter(t ->
-                            !t.nature.startsWith("u") &&
-                            !t.nature.startsWith("w") &&
-                            !t.nature.startsWith("r") &&
-                            !t.nature.startsWith("m")
-                    // 过滤符号, 助词, 代词, 数量词
-            ).collect(Collectors.toList());
+                                    !t.nature.startsWith("u") &&
+                                            !t.nature.startsWith("w") &&
+                                            !t.nature.startsWith("r") &&
+                                            !t.nature.startsWith("m")
+                            // 过滤符号, 助词, 代词, 数量词
+                    ).collect(Collectors.toList());
 
-            HashMap<String, Integer> wordCnt = new HashMap<>(terms.size() / 4);
-            terms.forEach(new Consumer<Term>() {
-                @Override
-                public void accept(Term term) {
-                    if (wordCnt.containsKey(term.word)) {
-                        int tmp = wordCnt.get(term.word);
-                        wordCnt.put(term.word, tmp + 1);
-                    } else wordCnt.put(term.word, 1);
-                }
+            // kafka 分区策略
+            // TODO: 2024/5/5 到时候把分区策略新写一个kafka template这个临时就这么用着
+            int partitionNum = kafkaTemplate.partitionsFor(TOPIC).size();
+//            logger.info("partitionNum=" + partitionNum);
+            ArrayList<HashMap<String, Integer>> partitionMaps = new ArrayList<>(partitionNum);
+            for (int idx = 0; idx < partitionNum; idx++) partitionMaps.add(new HashMap<>(terms.size() / 4 * 2));
+            // 分区计数
+            terms.forEach((Term term) -> {
+                        String word = term.word;
+                        int partition = (int)(Hashing.murmur3_32_fixed().hashString(word, StandardCharsets.UTF_8).padToLong() % partitionNum);
+                        HashMap<String, Integer> wordCnt = partitionMaps.get(partition);
+                        if (wordCnt.containsKey(word)) {
+                            int tmp = wordCnt.get(word);
+                            wordCnt.put(word, tmp + 1);
+                        } else wordCnt.put(word, 1);
+                    }
+            );
+            // 构造消息并发送
+            // TODO: 2024/5/5 因为暂时很简单, 如果后续复杂的话就换用其他的
+            // TODO: 2024/5/5 序列化器, 分区策略, 批处理工厂, 看来 kafka 的 config 迫在眉睫啊 
+            List<CustomMessage> messages = new ArrayList<>(partitionNum);
+            partitionMaps.forEach((map)->{
+                messages.add(new CustomMessage(fileUID,map));
             });
-
-            // TODO: 2024/5/4 发消息和回调的问题, 如果回调依旧在这边阻塞的话, 虽然性能上不太好, 但是更加安全可靠一点
-            String key = fileUID+"-"+chunk.getChunkId();
-            kafkaTemplate.send(TOPIC, key, wordCnt.toString());
-
-
-
+            for(int partition=0;partition<partitionNum;partition++)
+                kafkaTemplate.send(TOPIC,partition,String.valueOf(fileUID),messages.get(partition).toString());
         }
     }
 

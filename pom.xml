@@ -13,6 +13,8 @@
         <module>map-reduce-api</module>
         <module>WordCountMain</module>
         <module>Workers</module>
+        <module>Reducer</module>
+        <module>kafka-massage</module>
     </modules>
 
     <properties>
@@ -57,7 +59,6 @@
                 <artifactId>dubbo-spring-boot-starter</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
-
             <!-- Nacos 配置-->
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
@@ -65,6 +66,12 @@
                 <version>${nacos.version}</version>
             </dependency>
             <!-- Dubbo 配置结束-->
+
+            <dependency>
+                <groupId>priv.dawn</groupId>
+                <artifactId>kafka-massage</artifactId>
+                <version>0.01</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

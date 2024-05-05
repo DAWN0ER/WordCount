@@ -22,7 +22,7 @@ public class WorkerServiceTest extends WorkersApplicationTests{
     public void simpleTest() throws InterruptedException {
         int res = service.loadFile(1222161892,1,3);
         logger.info("finished "+res);
-        Thread.sleep(5*1000);
+        Thread.sleep(1000);
     }
 
     @Test

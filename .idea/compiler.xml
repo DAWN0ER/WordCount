@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="WordCountMain" />
         <module name="map-reduce-api" />
+        <module name="kafka-massage" />
         <module name="Reducer" />
         <module name="Workers" />
         <module name="demo2" />
