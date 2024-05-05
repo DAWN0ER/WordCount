@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface ChunkReadMapper {
 
-    @Select("SELECT chunk_id as chunkId,context FROM t_file_chunks  WHERE file_uid=#{uid} AND chunk_id BETWEEN #{begin} AND #{end};")
+    @Select("SELECT chunk_id AS chunkId,context FROM t_file_chunks WHERE file_uid=#{uid} AND chunk_id BETWEEN #{begin} AND #{end};")
     List<ChunkDTO> getChunks(@Param("uid") int uid, @Param("begin") int begin, @Param("end") int end);
 
 }

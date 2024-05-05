@@ -2,13 +2,19 @@ package priv.dawn.workers;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+import lombok.SneakyThrows;
 import org.apache.kafka.common.PartitionInfo;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import priv.dawn.mapreduceapi.api.WorkerService;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class WorkerServiceTest extends WorkersApplicationTests{
 
@@ -18,11 +24,12 @@ public class WorkerServiceTest extends WorkersApplicationTests{
     @Autowired
     KafkaTemplate<String,String> kafka;
 
+
+
     @Test
     public void simpleTest() throws InterruptedException {
-        int res = service.loadFile(1222161892,1,3);
+        int res = service.loadFile(114514,1,1);
         logger.info("finished "+res);
-        Thread.sleep(1000);
     }
 
     @Test
@@ -40,5 +47,6 @@ public class WorkerServiceTest extends WorkersApplicationTests{
             logger.info(info.toString());
         }
     }
+
 
 }

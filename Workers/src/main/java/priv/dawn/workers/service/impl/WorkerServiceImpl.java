@@ -4,10 +4,13 @@ import com.google.common.hash.Hashing;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import lombok.AllArgsConstructor;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.ChunkReadMapper;
 import priv.dawn.workers.pojo.ChunkDTO;
+import priv.dawn.workers.utils.CountWordUtil;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
@@ -75,7 +79,9 @@ public class WorkerServiceImpl implements WorkerService {
         return null;
     }
 
+
     // TODO: 2024/5/4  Runner 处理 chunk 的, 整合了 Kafka , 需要解决序列化问题和分区的mapper问题
+    // 使用内部类就可以直接使用 kafkaTemplate 更加方便
     @AllArgsConstructor
     private class processChunk implements Runnable {
 
@@ -85,42 +91,25 @@ public class WorkerServiceImpl implements WorkerService {
         @Override
         public void run() {
             logger.info(Thread.currentThread().getName() + " process file " + fileUID + " chunk " + chunk.getChunkId());
-            // 分词
-            List<Term> terms = StandardTokenizer.segment(chunk.getContext()).stream()
-                    .filter(t ->
-                                    !t.nature.startsWith("u") &&
-                                            !t.nature.startsWith("w") &&
-                                            !t.nature.startsWith("r") &&
-                                            !t.nature.startsWith("m")
-                            // 过滤符号, 助词, 代词, 数量词
-                    ).collect(Collectors.toList());
 
-            // kafka 分区策略
+            // kafka 分区代替 map 发送消息
             // TODO: 2024/5/5 到时候把分区策略新写一个kafka template这个临时就这么用着
             int partitionNum = kafkaTemplate.partitionsFor(TOPIC).size();
-//            logger.info("partitionNum=" + partitionNum);
-            ArrayList<HashMap<String, Integer>> partitionMaps = new ArrayList<>(partitionNum);
-            for (int idx = 0; idx < partitionNum; idx++) partitionMaps.add(new HashMap<>(terms.size() / 4 * 2));
-            // 分区计数
-            terms.forEach((Term term) -> {
-                        String word = term.word;
-                        int partition = (int) (Hashing.murmur3_32_fixed().hashString(word, StandardCharsets.UTF_8).padToLong() % partitionNum);
-                        HashMap<String, Integer> wordCnt = partitionMaps.get(partition);
-                        if (wordCnt.containsKey(word)) {
-                            int tmp = wordCnt.get(word);
-                            wordCnt.put(word, tmp + 1);
-                        } else wordCnt.put(word, 1);
-                    }
-            );
+
             // 构造消息并发送
-            // TODO: 2024/5/5 因为暂时很简单, 如果后续复杂的话就换用其他的
-            // TODO: 2024/5/5 序列化器, 分区策略, 批处理工厂, 看来 kafka 的 config 迫在眉睫啊
-            List<CustomMessage> messages = new ArrayList<>(partitionNum);
-            partitionMaps.forEach((map) -> {
-                messages.add(new CustomMessage(fileUID, map));
-            });
-            for (int partition = 0; partition < partitionNum; partition++)
-                kafkaTemplate.send(TOPIC, partition, String.valueOf(fileUID), messages.get(partition).toString());
+            ArrayList<CustomMessage> messages = CountWordUtil.generateMsgPartitionMapperFromChunk(fileUID, chunk, partitionNum);
+            for (int partition = 0; partition < partitionNum; partition++) {
+                CustomMessage msg = messages.get(partition);
+                kafkaTemplate.send(TOPIC, partition, String.valueOf(fileUID), msg.toJsonStr()).addCallback(
+                        success -> {
+
+                        },
+                        failure -> {
+                            // TODO: 2024/5/5 还没想好失败怎么办
+                            logger.warn(Thread.currentThread().getName() + " call back failure: " + failure);
+                        }
+                );
+            }
         }
     }
 

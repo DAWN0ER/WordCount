@@ -2,7 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>priv.dawn</groupId>
     <artifactId>Reducer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Reducer</name>
@@ -47,6 +46,11 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>priv.dawn</groupId>
+            <artifactId>kafka-massage</artifactId>
         </dependency>
     </dependencies>
 
