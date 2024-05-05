@@ -1,22 +1,16 @@
 package priv.dawn.workers.service.impl;
 
 import com.google.common.hash.Hashing;
-import com.hankcs.hanlp.classification.tokenizers.HanLPTokenizer;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import lombok.AllArgsConstructor;
-import org.apache.kafka.common.protocol.Message;
-import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.ChunkReadMapper;
@@ -26,11 +20,8 @@ import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 //@DubboService
@@ -113,7 +104,7 @@ public class WorkerServiceImpl implements WorkerService {
             // 分区计数
             terms.forEach((Term term) -> {
                         String word = term.word;
-                        int partition = (int)(Hashing.murmur3_32_fixed().hashString(word, StandardCharsets.UTF_8).padToLong() % partitionNum);
+                        int partition = (int) (Hashing.murmur3_32_fixed().hashString(word, StandardCharsets.UTF_8).padToLong() % partitionNum);
                         HashMap<String, Integer> wordCnt = partitionMaps.get(partition);
                         if (wordCnt.containsKey(word)) {
                             int tmp = wordCnt.get(word);
@@ -123,13 +114,13 @@ public class WorkerServiceImpl implements WorkerService {
             );
             // 构造消息并发送
             // TODO: 2024/5/5 因为暂时很简单, 如果后续复杂的话就换用其他的
-            // TODO: 2024/5/5 序列化器, 分区策略, 批处理工厂, 看来 kafka 的 config 迫在眉睫啊 
+            // TODO: 2024/5/5 序列化器, 分区策略, 批处理工厂, 看来 kafka 的 config 迫在眉睫啊
             List<CustomMessage> messages = new ArrayList<>(partitionNum);
-            partitionMaps.forEach((map)->{
-                messages.add(new CustomMessage(fileUID,map));
+            partitionMaps.forEach((map) -> {
+                messages.add(new CustomMessage(fileUID, map));
             });
-            for(int partition=0;partition<partitionNum;partition++)
-                kafkaTemplate.send(TOPIC,partition,String.valueOf(fileUID),messages.get(partition).toString());
+            for (int partition = 0; partition < partitionNum; partition++)
+                kafkaTemplate.send(TOPIC, partition, String.valueOf(fileUID), messages.get(partition).toString());
         }
     }
 
