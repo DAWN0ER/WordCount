@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 @Mapper
-public interface WordCountMapper {
+public interface ProgressMapper {
 
     @Insert("INSERT INTO t_file_progress (file_uid, chunks_num) VALUES (#{uid},#{num});")
     void saveNewProgress(@Param("uid") int fileUID, @Param("num") int chunkNum);
@@ -16,6 +16,6 @@ public interface WordCountMapper {
     void progressAdvanceOne(@Param("uid") int fileUID);
 
     @Select("SELECT TRUNCATE(finished / chunks_num *100,2) FROM t_file_progress WHERE file_uid=#{uid};")
-    float getProgress(@Param("uid") int fileUID);
+    Float getProgress(@Param("uid") int fileUID); // 用包装类防止返回null
 
 }

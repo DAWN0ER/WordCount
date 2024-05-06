@@ -40,7 +40,7 @@ public class CountWordUtil {
         // 构造消息
         // 直接用 json 序列化, 省的麻烦
         ArrayList<CustomMessage> messages = new ArrayList<>(partitionNum);
-        partitionMaps.forEach(map -> messages.add(new CustomMessage(fileUID, map)));
+        partitionMaps.forEach(map -> messages.add(new CustomMessage(chunk.getChunkId(), map)));
         return messages;
     }
 }

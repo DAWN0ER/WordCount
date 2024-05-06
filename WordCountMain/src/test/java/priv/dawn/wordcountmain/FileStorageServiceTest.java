@@ -1,5 +1,6 @@
 package priv.dawn.wordcountmain;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
@@ -12,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class FileStorageServiceTest extends WordCountMainApplicationTests {
 
     @Autowired
@@ -19,13 +21,13 @@ public class FileStorageServiceTest extends WordCountMainApplicationTests {
 
     @Test
     public void chunkTest() throws IOException {
-        File file = ResourceUtils.getFile("classpath:file.txt");
+        File file = ResourceUtils.getFile("classpath:活着.txt");
         FileReader fileReader = new FileReader(file);
         BufferedReader reader = new BufferedReader(fileReader);
         String context = reader.lines().collect(Collectors.joining());
-        FileTextVO fileText = new FileTextVO("欧亨利", context);
+        FileTextVO fileText = new FileTextVO("活着", context);
         int uid = fileStorageService.saveFile(fileText);
-        System.out.println(uid);
+        log.info("File uid: "+uid);
     }
 
 }
