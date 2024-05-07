@@ -49,8 +49,8 @@ public class WorkerServiceTest extends WorkersApplicationTests {
         int fileUID = 923965605;
         int chunkNum = 91;
 
-//        if(chunkNum<=0) return;
-//        if (service.createOrder(fileUID, chunkNum) < 0) return;
+        if(chunkNum<=0) return;
+        if (service.createOrder(fileUID, chunkNum) < 0) return;
 
         // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
         log.info("Order created: " + fileUID);
@@ -65,8 +65,7 @@ public class WorkerServiceTest extends WorkersApplicationTests {
 
         long millis = System.currentTimeMillis();
         System.out.println("Progress...");
-//        while (service.getProgress(fileUID) < 100) webSocket();
-        Thread.sleep(10*1000);
+        while (service.getProgress(fileUID) < 100) webSocket();
         long spend = System.currentTimeMillis() - millis;
         log.info("Time spend " + spend);
     }
