@@ -12,7 +12,7 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       retries: 3
-      batch-size: 1
+      batch-size: 10
       buffer-memory: 33554432
   redis:
     port: 6379

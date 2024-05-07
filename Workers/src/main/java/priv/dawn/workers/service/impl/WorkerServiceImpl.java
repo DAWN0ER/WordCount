@@ -99,7 +99,8 @@ public class WorkerServiceImpl implements WorkerService {
             ArrayList<CustomMessage> messages = CountWordUtil.generateMsgPartitionMapperFromChunk(fileUID, chunk, partitionNum);
             for (int partition = 0; partition < partitionNum; partition++) {
                 CustomMessage msg = messages.get(partition);
-                kafkaTemplate.send(TOPIC, partition, String.valueOf(fileUID), msg.toJsonStr()).addCallback(
+                String key = String.valueOf(fileUID);
+                kafkaTemplate.send(TOPIC, partition, key, msg.toJsonStr()).addCallback(
                         success -> {
                             if (success != null)
                                 progressManager.updateProgress(success.getProducerRecord(), partitionNum);

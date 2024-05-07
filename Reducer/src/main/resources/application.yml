@@ -6,7 +6,12 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      auto-commit-interval: 1000
+#      auto-commit-interval: 1s
       auto-offset-reset: earliest
-      enable-auto-commit: true
+      enable-auto-commit: false
       group-id: word-count-reducers
+    listener:
+      type: batch
+      ack-mode: batch
+      concurrency: 4
+
