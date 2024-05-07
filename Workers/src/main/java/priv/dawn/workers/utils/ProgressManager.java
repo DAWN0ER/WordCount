@@ -8,6 +8,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.workers.mapper.ProgressMapper;
@@ -41,12 +42,17 @@ public class ProgressManager {
             return;
         }
         int chunkId = msg.getChunkId();
-        log.info(" Callback: " + fileUID + "-" + chunkId + "-@P" + record.partition());
+//        log.info(" Callback: " + fileUID + "-" + chunkId + "-@P" + record.partition());
         updateProgress(fileUID, chunkId, partitionNum);
     }
 
-    public void createProgress(int fileUID, int todoChunksNum) {
-        progressMapper.saveNewProgress(fileUID, todoChunksNum);
+    public int createProgress(int fileUID, int todoChunksNum) {
+        try{
+            progressMapper.saveNewProgress(fileUID, todoChunksNum);
+        }catch (DuplicateKeyException e){
+            return -1; // 订单冲突
+        }
+        return 0;
     }
 
     private void updateProgress(int fileUID, int chunkId, int partitionNum) {
@@ -60,14 +66,13 @@ public class ProgressManager {
                 progressMapper.progressAdvanceOne(fileUID);
                 cnt.set(0); //
                 cnt.expire(new Random().nextInt(5) + 5, TimeUnit.MINUTES); // 十分钟内删除
-                log.info("Progress-" + key + " finished");
+//                log.info("Progress-" + key + " finished");
             }
             lock.unlock();
         }
     }
 
-    public float getProgress(int fileUID) {
-        Float f = progressMapper.getProgress(fileUID);
-        return f == null ? 0 : f;
+    public Float getProgress(int fileUID) {
+        return progressMapper.getProgress(fileUID);
     }
 }

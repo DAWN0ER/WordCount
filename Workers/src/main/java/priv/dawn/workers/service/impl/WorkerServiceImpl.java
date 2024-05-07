@@ -72,6 +72,12 @@ public class WorkerServiceImpl implements WorkerService {
         return null;
     }
 
+    @Override
+    public int createOrder(int fileUID, int chunkNum) {
+        if(chunkNum<=0) return -2; // chunkNum 违规
+        return progressManager.createProgress(fileUID,chunkNum);
+    }
+
 
     // TODO: 2024/5/4  Runner 处理 chunk 的, 整合了 Kafka , 需要解决序列化问题和分区的mapper问题
     // 使用内部类就可以直接使用 kafkaTemplate 更加方便
@@ -83,7 +89,7 @@ public class WorkerServiceImpl implements WorkerService {
 
         @Override
         public void run() {
-            log.info(Thread.currentThread().getName() + " process file " + fileUID + " chunk " + chunk.getChunkId());
+//            log.info(Thread.currentThread().getName() + " process file " + fileUID + " chunk " + chunk.getChunkId());
 
             // kafka 分区代替 map 发送消息
             // TODO: 2024/5/5 到时候把分区策略新写一个kafka template这个临时就这么用着

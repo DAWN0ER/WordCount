@@ -13,10 +13,9 @@ public class WordCountReducer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @KafkaListener(topics = "word_count")
-    public void onMassage(ConsumerRecord<String,String> record){
-        logger.info(record.toString());
+    public void onMassage(ConsumerRecord<String, String> record) {
         CustomMessage msg = CustomMessage.getFromJson(record.value());
-        if(msg!=null) logger.info(msg.toString());
+        if (msg != null) logger.info(record.key() + "-" + msg.getChunkId() + "#P" + record.partition());
         else logger.error("Message de json fail");
     }
 

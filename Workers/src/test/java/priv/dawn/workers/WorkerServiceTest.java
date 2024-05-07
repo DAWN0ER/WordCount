@@ -1,7 +1,5 @@
 package priv.dawn.workers;
 
-import com.hankcs.hanlp.seg.common.Term;
-import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import org.apache.kafka.common.PartitionInfo;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +36,6 @@ public class WorkerServiceTest extends WorkersApplicationTests {
     }
 
     @Test
-    public void tokenTest() {
-        for (Term term : StandardTokenizer.segment("你是我的，宝贝, 宝贝、你①真的很美")) {
-            log.info(term.toString());
-        }
-
-    }
-
-    @Test
     public void kafkaTest() {
         List<PartitionInfo> list = kafka.partitionsFor("word_count");
         for (PartitionInfo info : list) {
@@ -53,5 +43,34 @@ public class WorkerServiceTest extends WorkersApplicationTests {
         }
     }
 
+    @Test
+    public void wordCountClient() {
+        // 本地找到这个文件的信息
+        int fileUID = 923965605;
+        int chunkNum = 91;
 
+//        if(chunkNum<=0) return;
+        if (service.createOrder(fileUID, chunkNum) < 0) return;
+        // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
+        log.info("Order created: " + fileUID);
+        int chunksPreWorker = 10;
+        int workersNum = Math.round(1.f * chunkNum / chunksPreWorker);
+        int begin = 1;
+        while (workersNum-- > 1) {
+            int res = service.loadFile(fileUID, begin, chunksPreWorker);
+            begin += chunksPreWorker;
+        }
+        service.loadFile(fileUID, begin, chunkNum - begin + 1);
+
+        long millis = System.currentTimeMillis();
+        System.out.println("Progress...");
+        while (service.getProgress(fileUID) < 100) {
+            webSocket();
+        }
+        long spend = System.currentTimeMillis() - millis;
+        log.info("Time spend " + spend);
+    }
+
+    private void webSocket() {
+    }// 模拟 websocket 进度条
 }
