@@ -12,13 +12,10 @@ public class DemoController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    // TODO: 2024/5/9 这都写的什么乱七八糟的东西, 后面记得改 
     @PostMapping("/upload")
     public int uploadFileText(@RequestBody FileTextVO fileTextVO) {
-        try {
-            return fileStorageService.saveFile(fileTextVO);
-        } catch (Exception e) {
-            return -1;
-        }
+        return fileStorageService.saveFile(fileTextVO);
     }
 
     @GetMapping("/file/{id}")

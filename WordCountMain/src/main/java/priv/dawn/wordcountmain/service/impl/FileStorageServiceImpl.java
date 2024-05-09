@@ -49,21 +49,17 @@ public class FileStorageServiceImpl implements FileStorageService {
             uid = UidGenerator.getOneUid();
             fileInfoDTO.setUid(uid);
             fileMapper.saveFileInfo(fileInfoDTO);
+            // TODO: 2024/5/9 重试一次, 暂时
         }
 
-        for (FileChunkDTO chunkDTO : dtos) {
-            fileMapper.saveFileChunk(
-                    fileInfoDTO.getUid(),
-                    chunkDTO.getChunkId(),
-                    chunkDTO.getContext()
-            );
-        }
+        for (FileChunkDTO chunkDTO : dtos)
+            fileMapper.saveFileChunk(fileInfoDTO.getUid(), chunkDTO.getChunkId(), chunkDTO.getContext());
 
         return fileInfoDTO.getUid();
     }
 
     @Override
     public String getContext(int fileUID) {
-        return fileMapper.getALLContextByUid(fileUID).stream().collect(Collectors.joining());
+        return String.join("", fileMapper.getALLContextByUid(fileUID));
     }
 }

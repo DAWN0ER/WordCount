@@ -14,15 +14,15 @@ import java.util.stream.Collectors;
 
 public class CountWordUtil {
 
-    public static ArrayList<CustomMessage> generateMsgPartitionMapperFromChunk(int fileUID, ChunkDTO chunk,int partitionNum){
+    public static ArrayList<CustomMessage> generateMsgPartitionMapperFromChunk(int fileUID, ChunkDTO chunk, int partitionNum) {
 
         // 分词过滤
         List<Term> terms = StandardTokenizer.segment(chunk.getContext()).stream().filter(t
-                -> !t.nature.startsWith("u")
-                && !t.nature.startsWith("w")
-                && !t.nature.startsWith("r")
-                && !t.nature.startsWith("m")
-        ).collect(Collectors.toList()); // 过滤符号, 助词, 代词, 数量词
+                -> t.nature.startsWith('a')
+                || t.nature.startsWith('n')
+                || t.nature.startsWith("vg") || t.nature.startsWith("vi") || t.nature.startsWith("vl") || t.nature.startsWith("vn")
+                || t.nature.startsWith('i')
+        ).collect(Collectors.toList()); // 只留下有用的语素
 
         ArrayList<HashMap<String, Integer>> partitionMaps = new ArrayList<>(partitionNum);
         for (int idx = 0; idx < partitionNum; idx++)

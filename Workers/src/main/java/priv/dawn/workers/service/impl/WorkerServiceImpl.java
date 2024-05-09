@@ -2,6 +2,7 @@ package priv.dawn.workers.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.ChunkReadMapper;
+import priv.dawn.workers.mapper.WordCountMapper;
 import priv.dawn.workers.pojo.ChunkDTO;
 import priv.dawn.workers.utils.CountWordUtil;
 import priv.dawn.workers.utils.ProgressManager;
@@ -19,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
-//@DubboService
+@DubboService
 @Slf4j
 @Service
 public class WorkerServiceImpl implements WorkerService {
@@ -31,9 +33,10 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Autowired
     private ChunkReadMapper chunkReadMapper;
-
     @Autowired
     private ProgressManager progressManager;
+    @Autowired
+    private WordCountMapper wordCountMapper;
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -69,7 +72,7 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Override
     public List<String> getWords(int fileUID) {
-        return null;
+        return wordCountMapper.getTop100WordCount(fileUID);
     }
 
     @Override

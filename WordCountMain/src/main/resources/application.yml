@@ -16,13 +16,13 @@ mybatis:
   executor-type: batch
 
 
-#dubbo:
-#  application:
-#    name: wordcount-service
-#  registry:
-#    address: nacos://127.0.0.1:8848
-#    username: nacos
-#    password: nacos
-#  protocol:
-#    name: dubbo
-#    port: 33305
+dubbo:
+  application:
+    name: wordcount-service
+  registry:
+    address: nacos://127.0.0.1:8848
+    username: nacos
+    password: nacos
+  protocol:
+    name: dubbo
+    port: 33305

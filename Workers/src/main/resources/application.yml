@@ -18,15 +18,15 @@ spring:
     port: 6379
     host: localhost
     database: 12
-#dubbo:
-#  application:
-#    name: worker-service
-#  registry:
-#    address: nacos://127.0.0.1:8848
-#    username: nacos
-#    password: nacos
-#  scan:
-#    base-packages: priv.dawn.workers.service.impl
-#  protocol:
-#    name: dubbo
-#    port: 33302
+dubbo:
+  application:
+    name: worker-service
+  registry:
+    address: nacos://127.0.0.1:8848
+    username: nacos
+    password: nacos
+  scan:
+    base-packages: priv.dawn.workers.service.impl
+  protocol:
+    name: dubbo
+    port: 33302

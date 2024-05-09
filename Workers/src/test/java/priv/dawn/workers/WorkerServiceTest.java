@@ -2,11 +2,15 @@ package priv.dawn.workers;
 
 import org.apache.kafka.common.PartitionInfo;
 import org.junit.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import priv.dawn.mapreduceapi.api.WorkerService;
+import priv.dawn.workers.mapper.WordCountMapper;
 import priv.dawn.workers.utils.ProgressManager;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 public class WorkerServiceTest extends WorkersApplicationTests {
@@ -19,6 +23,9 @@ public class WorkerServiceTest extends WorkersApplicationTests {
 
     @Autowired
     KafkaTemplate<String, String> kafka;
+
+    @Autowired
+    WordCountMapper wordCountMapper;
 
 
     @Test
@@ -44,12 +51,12 @@ public class WorkerServiceTest extends WorkersApplicationTests {
     }
 
     @Test
-    public void wordCountClient() throws InterruptedException {
+    public void wordCountClient() {
         // 本地找到这个文件的信息
         int fileUID = 923965605;
         int chunkNum = 91;
 
-        if(chunkNum<=0) return;
+//        if(chunkNum<=0) return;
         if (service.createOrder(fileUID, chunkNum) < 0) return;
 
         // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
@@ -68,6 +75,15 @@ public class WorkerServiceTest extends WorkersApplicationTests {
         while (service.getProgress(fileUID) < 100) webSocket();
         long spend = System.currentTimeMillis() - millis;
         log.info("Time spend " + spend);
+    }
+
+    @Test
+    public void mapperTest(){
+        int uid =923965605;
+        List<String> wordCount = wordCountMapper.getTop100WordCount(uid);
+        List<String> words = wordCountMapper.getTop100Words(uid);
+        log.info(words.toString());
+        log.info(wordCount.toString());
     }
 
     private void webSocket() {

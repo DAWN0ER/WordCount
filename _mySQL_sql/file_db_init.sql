@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS t_file_word_count
 (
     id          INT NOT NULL AUTO_INCREMENT,
     file_uid    INT NOT NULL,
-    word        CHAR(6) NOT NULL,
+    word        CHAR(8) NOT NULL,
     cnt         INT NOT NULL,
 
     PRIMARY KEY id(id),
