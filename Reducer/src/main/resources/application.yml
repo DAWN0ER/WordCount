@@ -3,15 +3,26 @@ server:
 spring:
   application:
     name: reducer-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/file_db?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
+  redis:
+    port: 6379
+    host: localhost
+    database: 13
+
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-#      auto-commit-interval: 1s
       auto-offset-reset: earliest
       enable-auto-commit: false
       group-id: word-count-reducers
+      max-poll-records: 20
     listener:
       type: batch
       ack-mode: batch
       concurrency: 4
-
+mybatis:
+  executor-type: batch
