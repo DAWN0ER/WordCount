@@ -2,15 +2,12 @@ package priv.dawn.workers;
 
 import org.apache.kafka.common.PartitionInfo;
 import org.junit.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.WordCountMapper;
 import priv.dawn.workers.utils.ProgressManager;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 public class WorkerServiceTest extends WorkersApplicationTests {
@@ -65,7 +62,7 @@ public class WorkerServiceTest extends WorkersApplicationTests {
         int workersNum = Math.round(1.f * chunkNum / chunksPreWorker);
         int begin = 1;
         while (workersNum-- > 1) {
-            int res = service.loadFile(fileUID, begin, chunksPreWorker);
+            service.loadFile(fileUID, begin, chunksPreWorker);
             begin += chunksPreWorker;
         }
         service.loadFile(fileUID, begin, chunkNum - begin + 1);
@@ -78,8 +75,8 @@ public class WorkerServiceTest extends WorkersApplicationTests {
     }
 
     @Test
-    public void mapperTest(){
-        int uid =923965605;
+    public void mapperTest() {
+        int uid = 923965605;
         List<String> wordCount = wordCountMapper.getTop100WordCount(uid);
         List<String> words = wordCountMapper.getTop100Words(uid);
         log.info(words.toString());
