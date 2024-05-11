@@ -8,6 +8,7 @@ import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.wordcountmain.domain.FileWordCountStateEnum;
 import priv.dawn.wordcountmain.mapper.FileMapper;
 import priv.dawn.wordcountmain.pojo.dto.FileInfoDTO;
+import priv.dawn.wordcountmain.pojo.vo.WordCountListVO;
 import priv.dawn.wordcountmain.service.WordCountService;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class WordCountClientRPC implements WordCountService {
     @DubboReference
     WorkerService workerService;
 
-    @Autowired
+    @Autowired // TODO: 2024/5/11 这个 Mapper 实际上是代替文件分块储存服务的 API, 后续会优化简单优化性能
     FileMapper fileMapper;
 
     @Override
@@ -52,7 +53,10 @@ public class WordCountClientRPC implements WordCountService {
     }
 
     @Override
-    public List<String> getWordCounts(int fileUID) {
-        return workerService.getWords(fileUID);
+    public WordCountListVO getWordCounts(int fileUID) {
+        List<String> wcs = workerService.getWords(fileUID);
+        FileInfoDTO info = fileMapper.getFileInfoById(fileUID);
+        return new WordCountListVO(info,wcs,"=");
+
     }
 }

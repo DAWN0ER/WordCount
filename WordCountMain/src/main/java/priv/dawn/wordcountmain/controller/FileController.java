@@ -6,8 +6,8 @@ import priv.dawn.wordcountmain.pojo.vo.FileTextVO;
 import priv.dawn.wordcountmain.service.FileStorageService;
 
 @RestController
-@RequestMapping("/demo/v1/api")
-public class DemoController {
+@RequestMapping("/demo/v1/api/file")
+public class FileController {
 
     @Autowired
     private FileStorageService fileStorageService;
@@ -18,7 +18,7 @@ public class DemoController {
         return fileStorageService.saveFile(fileTextVO);
     }
 
-    @GetMapping("/file/{id}")
+    @GetMapping("/read/{id}")
     public String getFile(@PathVariable("id") int id){
         return fileStorageService.getContext(id);
     }

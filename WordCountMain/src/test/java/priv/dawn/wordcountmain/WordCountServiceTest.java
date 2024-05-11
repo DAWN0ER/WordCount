@@ -31,11 +31,4 @@ public class WordCountServiceTest extends WordCountMainApplicationTests {
         }while (progress<100);
     }
 
-    @Test
-    public void sTest2(){
-        int uid = 923965605;
-
-        List<String> list = service.getWordCounts(uid);
-        log.info(list.toString());
-    }
 }
