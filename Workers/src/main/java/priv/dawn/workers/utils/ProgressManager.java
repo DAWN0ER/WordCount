@@ -95,12 +95,15 @@ public class ProgressManager {
                 return progress;
             }
             Float mapperProgress = progressMapper.getProgress(fileUID);
-            if(mapperProgress==null) mapperProgress = 0.0f;
+            if(mapperProgress==null){
+                rBucket.set(mapperProgress,new Random().nextInt(5)+10,TimeUnit.SECONDS); // 大概 15s 左右获取不到进度
+                return 0.0f;
+            }
             if(mapperProgress>=100){
                 rBucket.set(100.0f);
                 return 100.0f;
             }else{
-                rBucket.set(mapperProgress,500,TimeUnit.MILLISECONDS);
+                rBucket.set(mapperProgress,100,TimeUnit.MILLISECONDS); // 每秒更新一次
                 return mapperProgress;
             }
         }finally {

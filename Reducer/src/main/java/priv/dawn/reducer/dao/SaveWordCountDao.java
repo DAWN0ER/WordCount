@@ -32,14 +32,14 @@ public class SaveWordCountDao {
         RLock lock = reducerRedisson.getLock(lockKey);
         lock.lock();
 
-        try{
+        try {
             wordCntMap.forEach((word, count) -> {
                 if (checkIfIllegal(word, count)) {
                     throw new RuntimeException("非法参数: " + word + " | " + count);
                 }
                 wcMapper.saveWordCount(fileUID, word, count);
             });
-        }finally {
+        } finally {
             lock.unlock();
         }
 

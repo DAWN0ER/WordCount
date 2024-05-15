@@ -32,7 +32,7 @@ public class ReducerTest extends ReducerApplicationTests {
         } catch (Exception e) {
             log.error(e.toString());
         }
-        if(reducerRedisson.getLock("123-0").isLocked()) log.info("lock doesnt release");
+        if (reducerRedisson.getLock("123-0").isLocked()) log.info("lock doesnt release");
     }
 
     private HashMap<String, Integer> generate() {

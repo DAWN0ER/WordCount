@@ -24,6 +24,7 @@ public class WordCountClientRPC implements WordCountService {
     @Qualifier("webSocketThreadPool")
     ThreadPoolTaskExecutor executor;
 
+
     @DubboReference
     WorkerService workerService;
 
@@ -44,13 +45,21 @@ public class WordCountClientRPC implements WordCountService {
         int chunksPreWorker = 10;
         int workersNum = Math.round(1.f * chunkNum / chunksPreWorker);
         int begin = 1;
+        // TODO: 2024/5/15 报错了的话还是直接去RPC那边看报错, 暂时是这个策略, 后续通过查资料再来看看怎么解决
         while (workersNum-- > 1) {
             workerService.loadFile(fileUID, begin, chunksPreWorker);
             begin += chunksPreWorker;
-            // TODO: 2024/5/9 主打一个错了但不改的策略, 后续解决一下这个问题
         }
         workerService.loadFile(fileUID, begin, chunkNum - begin + 1);
 
+        executor.execute(()->{
+            float progress;
+            do{
+                progress = workerService.getProgress(fileUID); // 获取进度
+
+            }while (progress<=100);
+
+        });
 
         return FileWordCountStateEnum.START_SUCCESS;
     }

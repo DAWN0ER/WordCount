@@ -12,7 +12,6 @@ import priv.dawn.wordcountmain.service.FileStorageService;
 import priv.dawn.wordcountmain.utils.UidGenerator;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
@@ -43,14 +42,21 @@ public class FileStorageServiceImpl implements FileStorageService {
         int chunkNum = dtos.size();
         FileInfoDTO fileInfoDTO = new FileInfoDTO(fileText.getFilename(), uid, chunkNum);
 
-        try {
-            fileMapper.saveFileInfo(fileInfoDTO);
-        } catch (DuplicateKeyException e) {
-            uid = UidGenerator.getOneUid();
-            fileInfoDTO.setUid(uid);
-            fileMapper.saveFileInfo(fileInfoDTO);
-            // TODO: 2024/5/9 重试一次, 暂时
+        boolean flag = false;
+        int loop = 3;
+        while (loop-->0 || flag){
+            try {
+                fileMapper.saveFileInfo(fileInfoDTO);
+                flag = true; // 只要没报错就可以来到这
+            } catch (DuplicateKeyException e) {
+                uid = UidGenerator.getOneUid();
+                fileInfoDTO.setUid(uid);
+                // 重试
+            }
         }
+
+        //noinspection ConstantConditions
+        if (!flag) return -1;
 
         for (FileChunkDTO chunkDTO : dtos)
             fileMapper.saveFileChunk(fileInfoDTO.getUid(), chunkDTO.getChunkId(), chunkDTO.getContext());
