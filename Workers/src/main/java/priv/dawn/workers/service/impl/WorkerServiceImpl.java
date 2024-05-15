@@ -50,7 +50,7 @@ public class WorkerServiceImpl implements WorkerService {
         List<ChunkDTO> chunks = chunkReadMapper.getChunks(fileUID, chunkBegin, chunkEnd);
         // 判断chunk缺失和数字对不上的问题
         if (chunks.size() != chunkNum) return -1;
-        // TODO: 2024/5/6 上面都是为了模拟分布式分块存储洗头膏的交互, 因为这个框架里面没有这样一个实际的系统, 所以写的很潦草
+        // TODO: 2024/5/6 上面都是为了模拟分布式分块存储系统的交互, 因为这个框架里面没有这样一个实际的系统, 所以写的很潦草
 
         int finished = 0;
         for (ChunkDTO chunk : chunks) {
@@ -82,7 +82,7 @@ public class WorkerServiceImpl implements WorkerService {
     }
 
 
-    // TODO: 2024/5/4  Runner 处理 chunk 的, 整合了 Kafka , 需要解决序列化问题和分区的mapper问题
+    // DONE: 2024/5/4  Runner 处理 chunk 的, 整合了 Kafka , 需要解决序列化问题和分区的mapper问题
     // 使用内部类就可以直接使用 kafkaTemplate 更加方便
     @AllArgsConstructor
     private class processChunk implements Runnable {
@@ -95,7 +95,7 @@ public class WorkerServiceImpl implements WorkerService {
 //            log.info(Thread.currentThread().getName() + " process file " + fileUID + " chunk " + chunk.getChunkId());
 
             // kafka 分区代替 map 发送消息
-            // TODO: 2024/5/5 到时候把分区策略新写一个kafka template这个临时就这么用着
+            // 分区算法写在外面可能比较合适, 可以通过获得 partition 的详细信息来做后续的工作, 也从这一刻开始要求强一致性
             int partitionNum = kafkaTemplate.partitionsFor(TOPIC).size();
 
             // 构造消息并发送

@@ -7,13 +7,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import priv.dawn.mapreduceapi.api.WorkerService;
-import priv.dawn.wordcountmain.domain.FileWordCountStateEnum;
+import priv.dawn.wordcountmain.domain.WordCountStateEnum;
+import priv.dawn.wordcountmain.domain.ProgressWebSocketServer;
 import priv.dawn.wordcountmain.mapper.FileMapper;
 import priv.dawn.wordcountmain.pojo.dto.FileInfoDTO;
 import priv.dawn.wordcountmain.pojo.vo.WordCountListVO;
 import priv.dawn.wordcountmain.service.WordCountService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -22,8 +24,7 @@ public class WordCountClientRPC implements WordCountService {
 
     @Resource
     @Qualifier("webSocketThreadPool")
-    ThreadPoolTaskExecutor executor;
-
+    ThreadPoolTaskExecutor webSocketExecutor;
 
     @DubboReference
     WorkerService workerService;
@@ -32,13 +33,13 @@ public class WordCountClientRPC implements WordCountService {
     FileMapper fileMapper;
 
     @Override
-    public FileWordCountStateEnum startCountWord(int fileUID) {
+    public WordCountStateEnum startCountWord(int fileUID) {
 
         FileInfoDTO info = fileMapper.getFileInfoById(fileUID);
         int chunkNum = info.getChunkNum();
 
-        if (info.getChunkNum() <= 0) return FileWordCountStateEnum.FILE_NOT_FOUNT;
-        if (!workerService.createOrder(fileUID, chunkNum)) return FileWordCountStateEnum.START_FAIL;
+        if (info.getChunkNum() <= 0) return WordCountStateEnum.FILE_NOT_FOUNT;
+        if (!workerService.createOrder(fileUID, chunkNum)) return WordCountStateEnum.START_FAIL;
 
         // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
         log.info("Order created: " + fileUID);
@@ -52,23 +53,29 @@ public class WordCountClientRPC implements WordCountService {
         }
         workerService.loadFile(fileUID, begin, chunkNum - begin + 1);
 
-        executor.execute(()->{
+        webSocketExecutor.execute(() -> {
             float progress;
-            do{
+            do {
                 progress = workerService.getProgress(fileUID); // 获取进度
-
-            }while (progress<=100);
-
+                ProgressWebSocketServer.sendMessage(fileUID, "已经完成: " + progress + "%");
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    log.error(e.toString());
+                }
+            } while (progress <= 100);
         });
 
-        return FileWordCountStateEnum.START_SUCCESS;
+        return WordCountStateEnum.START_SUCCESS;
     }
 
-
     @Override
-    // TODO: 2024/5/15 需要重新设计逻辑, 加上本地代理优化和一些 websocket
+    // TODO: 2024/5/15 本地缓存代理没写, 以后写
     public WordCountListVO getWordCounts(int fileUID) {
-        List<String> wcs = workerService.getWords(fileUID);
-        return new WordCountListVO(fileUID,wcs,"=");
+        if(workerService.getProgress(fileUID)>=100){
+            List<String> wcs = workerService.getWords(fileUID);
+            return new WordCountListVO(fileUID, wcs, "=");
+        }
+        return new WordCountListVO(fileUID,new ArrayList<>());
     }
 }

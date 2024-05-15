@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import priv.dawn.kafkamessage.message.CustomMessage;
-import priv.dawn.reducer.dao.SaveWordCountDao;
+import priv.dawn.reducer.repository.SaveWordCountRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 public class WordCountReducer {
 
     @Autowired
-    SaveWordCountDao saveWordCountDao;
+    SaveWordCountRepository saveWordCountRepository;
 
     @KafkaListener(topics = "word_count")
     public void onMassage(List<ConsumerRecord<String, String>> recordList) {
@@ -25,7 +25,7 @@ public class WordCountReducer {
         int partition = recordList.get(0).partition();
 
         // 处理消息
-        // TODO: 2024/5/9 假如数据有误, 基本是做丢弃处理, 所以可靠性真的不高, 这只能算一个简单计数功能
+        // 假如数据有误, 基本是做丢弃处理, 可靠性不高, 这只能算一个简单计数功能
         for (ConsumerRecord<String, String> record : recordList) {
 
             int fileUID = Integer.parseInt(record.key());
@@ -52,10 +52,10 @@ public class WordCountReducer {
         }
 
         // 消息录入
-        // TODO: 2024/5/9 存在堵塞问题, 可以考虑并发, 或者随机一个 fileUID 进行存储
+        // 大量同时插入的都是一个fileUID, 可能存在堵塞问题, 可以考虑并发, 或者随机一个 fileUID 进行存储
         fileMap.forEach((fileUID, wcMap) -> {
             try {
-                saveWordCountDao.saveFromWordCountMap(fileUID, partition, wcMap);
+                saveWordCountRepository.saveFromWordCountMap(fileUID, partition, wcMap);
             } catch (Exception exception) {
                 log.error("Transactional redo for " + exception + " when process " + fileUID + "-" + partition);
             }

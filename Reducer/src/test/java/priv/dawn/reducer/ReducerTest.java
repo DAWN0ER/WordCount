@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import priv.dawn.reducer.dao.SaveWordCountDao;
+import priv.dawn.reducer.repository.SaveWordCountRepository;
 import priv.dawn.reducer.mapper.WordCountMapper;
 
 import javax.annotation.Resource;
@@ -16,7 +16,7 @@ public class ReducerTest extends ReducerApplicationTests {
     WordCountMapper mapper;
 
     @Autowired
-    SaveWordCountDao wcDao;
+    SaveWordCountRepository wcDao;
 
     @Qualifier("reducerRedisson")
     @Resource

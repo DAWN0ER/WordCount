@@ -1,13 +1,12 @@
 package priv.dawn.wordcountmain.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import priv.dawn.wordcountmain.domain.WordCountStateEnum;
 import priv.dawn.wordcountmain.pojo.vo.WordCountListVO;
 import priv.dawn.wordcountmain.service.impl.WordCountClientRPC;
 
-@Controller("/demo/v1/api/count")
+@RestController("/demo/v1/api/words")
 public class WordCountController {
 
     @Autowired
@@ -18,4 +17,8 @@ public class WordCountController {
         return wordCountClient.getWordCounts(uid);
     }
 
+    @PostMapping("/count")
+    public WordCountStateEnum startWordCount(@RequestParam("file_uid") int fileUID){
+        return wordCountClient.startCountWord(fileUID);
+    }
 }

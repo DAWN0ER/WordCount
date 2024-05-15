@@ -36,6 +36,7 @@ public class ProgressWebSocketServer {
     @OnMessage
     public void onMessage(String message) {
         // 不做任何处理
+        log.info("message.length:"+message.length());
     }
 
     @OnError
@@ -43,8 +44,12 @@ public class ProgressWebSocketServer {
         log.error("File " + fileUID + " WebSocket error");
     }
 
-    public static void sendMessage(int fileUID, String msg) throws IOException {
-        wsMap.get(fileUID).send(msg);
+    public static void sendMessage(int fileUID, String msg) {
+        try {
+            if (wsMap.containsKey(fileUID)) wsMap.get(fileUID).send(msg);
+        } catch (IOException e) {
+            log.error("FileUID: " + fileUID + " Error: " + e);
+        }
     }
 
     private void send(String msg) throws IOException {

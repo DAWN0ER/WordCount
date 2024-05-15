@@ -1,4 +1,4 @@
-package priv.dawn.reducer.dao;
+package priv.dawn.reducer.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 @Slf4j
 @Repository
-public class SaveWordCountDao {
+public class SaveWordCountRepository {
 
     @Autowired
     WordCountMapper wcMapper;
@@ -24,7 +24,7 @@ public class SaveWordCountDao {
     @Resource
     RedissonClient reducerRedisson;
 
-    // TODO:
+    // 对于每一个 chunk , 都必须要么全部录入, 要么全部 undo
     @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = RuntimeException.class)
     public void saveFromWordCountMap(int fileUID, int partition, HashMap<String, Integer> wordCntMap) {
 

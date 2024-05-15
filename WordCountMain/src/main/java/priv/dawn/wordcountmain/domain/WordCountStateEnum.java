@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum FileWordCountStateEnum {
+public enum WordCountStateEnum {
 
     START_SUCCESS(250,"成功开始分词统计"),
     START_FAIL(450,"创建任务失败"),
@@ -17,7 +17,7 @@ public enum FileWordCountStateEnum {
     private final int state;
     private final String Massage;
 
-    FileWordCountStateEnum(int state, String massage) {
+    WordCountStateEnum(int state, String massage) {
         this.state = state;
         Massage = massage;
     }
