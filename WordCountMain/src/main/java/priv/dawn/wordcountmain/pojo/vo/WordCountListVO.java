@@ -14,17 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 public class WordCountListVO {
 
-    @JsonProperty("file_name")
-    private String fileName;
     @JsonProperty("file_uid")
     private int fileUID;
     @JsonProperty("word_count_list")
     private List<WordCountPair> wordCountList;
 
     // 通过 FileInfoDTO 和 RPC 返回的字符串对应序列构造
-    public WordCountListVO(FileInfoDTO info, List<String> wordCountStrList, String wordCountSplitStr) {
-        this.fileName = info.getFilename();
-        this.fileUID = info.getUid();
+    public WordCountListVO(int fileUID, List<String> wordCountStrList, String wordCountSplitStr) {
+        this.fileUID = fileUID;
         this.wordCountList = new ArrayList<>(wordCountStrList.size());
         wordCountStrList.forEach(e -> wordCountList.add(new WordCountPair(e, wordCountSplitStr)));
     }

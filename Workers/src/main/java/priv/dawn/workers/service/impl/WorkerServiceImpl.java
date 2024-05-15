@@ -77,7 +77,7 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Override
     public boolean createOrder(int fileUID, int chunkNum) {
-        if(chunkNum<=0) return false;
+        if(chunkNum<=0) return false; // chunkNum 违规
         return progressManager.createProgress(fileUID,chunkNum);
     }
 

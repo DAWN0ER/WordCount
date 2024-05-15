@@ -18,7 +18,7 @@ public class FileController {
         return fileStorageService.saveFile(fileTextVO);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/read/{id}")
     public String getFile(@PathVariable("id") int id){
         return fileStorageService.getContext(id);
     }

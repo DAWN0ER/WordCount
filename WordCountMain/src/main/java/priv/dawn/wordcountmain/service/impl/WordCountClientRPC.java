@@ -1,6 +1,5 @@
 package priv.dawn.wordcountmain.service.impl;
 
-import jdk.nashorn.internal.ir.annotations.Reference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import priv.dawn.mapreduceapi.api.WorkerService;
-import priv.dawn.wordcountmain.config.ThreadPoolConfiguration;
 import priv.dawn.wordcountmain.domain.FileWordCountStateEnum;
 import priv.dawn.wordcountmain.mapper.FileMapper;
 import priv.dawn.wordcountmain.pojo.dto.FileInfoDTO;
@@ -39,7 +37,7 @@ public class WordCountClientRPC implements WordCountService {
         int chunkNum = info.getChunkNum();
 
         if (info.getChunkNum() <= 0) return FileWordCountStateEnum.FILE_NOT_FOUNT;
-        if (workerService.createOrder(fileUID, chunkNum)) return FileWordCountStateEnum.START_FAIL;
+        if (!workerService.createOrder(fileUID, chunkNum)) return FileWordCountStateEnum.START_FAIL;
 
         // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
         log.info("Order created: " + fileUID);
@@ -62,7 +60,6 @@ public class WordCountClientRPC implements WordCountService {
     // TODO: 2024/5/15 需要重新设计逻辑, 加上本地代理优化和一些 websocket
     public WordCountListVO getWordCounts(int fileUID) {
         List<String> wcs = workerService.getWords(fileUID);
-        FileInfoDTO info = fileMapper.getFileInfoById(fileUID);
-        return new WordCountListVO(info,wcs,"=");
+        return new WordCountListVO(fileUID,wcs,"=");
     }
 }

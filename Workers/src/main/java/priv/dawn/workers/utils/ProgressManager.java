@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.redisson.api.RAtomicLong;
+import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,10 +76,36 @@ public class ProgressManager {
         }
     }
 
-    // TODO: 2024/5/15 Redis 优化为什么没做, 服了
+    // DONE: 2024/5/15 Redis 优化为什么没做, 服了
     public Float getProgress(int fileUID) {
+        String key = "Progress-" + fileUID;
+        String lockKey = "Progress-Lock-"+fileUID;
+        RBucket<Float> rBucket = redissonClient.getBucket(key);
+        Float progress = rBucket.get();
+        if (progress!=null){
+            return progress;
+        }
 
-        return progressMapper.getProgress(fileUID);
+        // 防止缓存穿透和缓存击穿
+        RLock lock = redissonClient.getLock(lockKey);
+        try{
+            lock.lock();
+            progress = rBucket.get();
+            if (progress!=null){
+                return progress;
+            }
+            Float mapperProgress = progressMapper.getProgress(fileUID);
+            if(mapperProgress==null) mapperProgress = 0.0f;
+            if(mapperProgress>=100){
+                rBucket.set(100.0f);
+                return 100.0f;
+            }else{
+                rBucket.set(mapperProgress,500,TimeUnit.MILLISECONDS);
+                return mapperProgress;
+            }
+        }finally {
+            lock.unlock();
+        }
 
     }
 }
