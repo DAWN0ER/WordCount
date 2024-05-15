@@ -77,12 +77,14 @@ public class ProgressManager {
     }
 
     // DONE: 2024/5/15 Redis 优化为什么没做, 服了
-    public Float getProgress(int fileUID) {
+    public float getProgress(int fileUID) {
         String key = "Progress-" + fileUID;
         String lockKey = "Progress-Lock-"+fileUID;
-        RBucket<Float> rBucket = redissonClient.getBucket(key);
-        Float progress = rBucket.get();
-        if (progress!=null){
+        RBucket<Double> rBucket = redissonClient.getBucket(key); // 喵的 redisson 默认转换为 double 真的是踩大坑
+        Double aDoubleProgress = rBucket.get();
+        float progress;
+        if (aDoubleProgress!=null){
+            progress = aDoubleProgress.floatValue();
             return progress;
         }
 
@@ -90,20 +92,21 @@ public class ProgressManager {
         RLock lock = redissonClient.getLock(lockKey);
         try{
             lock.lock();
-            progress = rBucket.get();
-            if (progress!=null){
+            aDoubleProgress = rBucket.get();
+            if (aDoubleProgress!=null){
+                progress = aDoubleProgress.floatValue();
                 return progress;
             }
             Float mapperProgress = progressMapper.getProgress(fileUID);
             if(mapperProgress==null){
-                rBucket.set(mapperProgress,new Random().nextInt(5)+10,TimeUnit.SECONDS); // 大概 15s 左右获取不到进度
+                rBucket.set(0.0,new Random().nextInt(5)+10,TimeUnit.SECONDS); // 大概 15s 左右获取不到进度
                 return 0.0f;
             }
             if(mapperProgress>=100){
-                rBucket.set(100.0f);
+                rBucket.set(100.0);
                 return 100.0f;
             }else{
-                rBucket.set(mapperProgress,100,TimeUnit.MILLISECONDS); // 每秒更新一次
+                rBucket.set((double)mapperProgress,100,TimeUnit.MILLISECONDS); // 每秒更新一次
                 return mapperProgress;
             }
         }finally {

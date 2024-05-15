@@ -2,14 +2,14 @@ package priv.dawn.wordcountmain.domain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/wsServer/{fileUID}")
+@ServerEndpoint("/progress/{fileUID}")
 @Component // WebSocket 好像默认是多例的
 @Slf4j
 public class ProgressWebSocketServer {
@@ -20,7 +20,7 @@ public class ProgressWebSocketServer {
     private int fileUID;
 
     @OnOpen
-    public void onOpen(Session session, @PathVariable("fileUID") int fileUID) {
+    public void onOpen(Session session, @PathParam("fileUID") int fileUID) {
         this.session = session;
         this.fileUID = fileUID;
         wsMap.put(fileUID, this);
@@ -36,12 +36,12 @@ public class ProgressWebSocketServer {
     @OnMessage
     public void onMessage(String message) {
         // 不做任何处理
-        log.info("message.length:"+message.length());
+        log.info("message.length:" + message.length());
     }
 
     @OnError
-    public void onError() {
-        log.error("File " + fileUID + " WebSocket error");
+    public void onError(Session session, Throwable throwable) {
+        log.error("File-" + fileUID + " WebSocket-" + session + " error:" + throwable.toString());
     }
 
     public static void sendMessage(int fileUID, String msg) {

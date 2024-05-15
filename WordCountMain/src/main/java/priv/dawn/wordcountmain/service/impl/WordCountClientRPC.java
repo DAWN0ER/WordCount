@@ -63,7 +63,7 @@ public class WordCountClientRPC implements WordCountService {
                 } catch (InterruptedException e) {
                     log.error(e.toString());
                 }
-            } while (progress <= 100);
+            } while (progress < 100);
         });
 
         return WordCountStateEnum.START_SUCCESS;

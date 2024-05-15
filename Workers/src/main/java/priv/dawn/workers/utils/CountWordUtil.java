@@ -17,6 +17,7 @@ public class CountWordUtil {
     public static ArrayList<CustomMessage> generateMsgPartitionMapperFromChunk(int fileUID, ChunkDTO chunk, int partitionNum) {
 
         // 分词过滤
+        // TODO: 2024/5/15 太不优雅了, 建议以后换成白名单的 HashSet 来判断
         List<Term> terms = StandardTokenizer.segment(chunk.getContext()).stream().filter(t
                 -> t.nature.startsWith('a')
                 || t.nature.startsWith('n')
