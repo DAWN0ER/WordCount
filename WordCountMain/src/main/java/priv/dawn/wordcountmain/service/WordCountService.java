@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface WordCountService {
     FileWordCountStateEnum startCountWord(int fileUID);
-    float getProgress(int fileUID);
     WordCountListVO getWordCounts(int fileUID);
 }

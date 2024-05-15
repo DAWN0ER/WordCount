@@ -54,7 +54,7 @@ public class WorkerServiceTest extends WorkersApplicationTests {
         int chunkNum = 91;
 
 //        if(chunkNum<=0) return;
-        if (service.createOrder(fileUID, chunkNum) < 0) return;
+        if (!service.createOrder(fileUID, chunkNum)) return;
 
         // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
         log.info("Order created: " + fileUID);

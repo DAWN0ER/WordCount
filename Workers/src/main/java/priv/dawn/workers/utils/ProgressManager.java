@@ -37,7 +37,7 @@ public class ProgressManager {
     public void updateProgress(@NotNull ProducerRecord<String, String> record, int partitionNum) {
         int fileUID = Integer.parseInt(record.key());
         CustomMessage msg = CustomMessage.getFromJson(record.value());
-        if(msg==null){
+        if (msg == null) {
             log.error("Record json deserialize fail: " + record);
             return;
         }
@@ -46,13 +46,13 @@ public class ProgressManager {
         updateProgress(fileUID, chunkId, partitionNum);
     }
 
-    public int createProgress(int fileUID, int todoChunksNum) {
-        try{
+    public boolean createProgress(int fileUID, int todoChunksNum) {
+        try {
             progressMapper.saveNewProgress(fileUID, todoChunksNum);
-        }catch (DuplicateKeyException e){
-            return -1; // 订单冲突
+        } catch (DuplicateKeyException e) {
+            return false; // 订单冲突
         }
-        return 0;
+        return true;
     }
 
     private void updateProgress(int fileUID, int chunkId, int partitionNum) {
@@ -61,18 +61,24 @@ public class ProgressManager {
         RLock lock = redissonClient.getLock(LOCK);
         long res = cnt.incrementAndGet();
         if (res == partitionNum) {
-            lock.lock();
-            if (cnt.get() == partitionNum) {
-                progressMapper.progressAdvanceOne(fileUID);
-                cnt.set(0); //
-                cnt.expire(new Random().nextInt(5) + 5, TimeUnit.MINUTES); // 十分钟内删除
+            try {
+                lock.lock();
+                if (cnt.get() == partitionNum) {
+                    progressMapper.progressAdvanceOne(fileUID);
+                    cnt.set(0); //
+                    cnt.expire(new Random().nextInt(5) + 5, TimeUnit.MINUTES); // 十分钟内删除
 //                log.info("Progress-" + key + " finished");
+                }
+            } finally {
+                lock.unlock();
             }
-            lock.unlock();
         }
     }
 
+    // TODO: 2024/5/15 Redis 优化为什么没做, 服了
     public Float getProgress(int fileUID) {
+
         return progressMapper.getProgress(fileUID);
+
     }
 }
