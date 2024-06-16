@@ -26,6 +26,7 @@ public class WordCountReducer {
 
         // 处理消息
         // 假如数据有误, 基本是做丢弃处理, 可靠性不高, 这只能算一个简单计数功能
+        // TODO: 2024/6/16 这是完全没有考虑到消息重复和消息幂等的各种问题啊
         for (ConsumerRecord<String, String> record : recordList) {
 
             int fileUID = Integer.parseInt(record.key());
@@ -52,7 +53,7 @@ public class WordCountReducer {
         }
 
         // 消息录入
-        // 大量同时插入的都是一个fileUID, 可能存在堵塞问题, 可以考虑并发, 或者随机一个 fileUID 进行存储
+        // TODO: 2024/6/16 存在严重的不幂等问题，出现异常都没办法定位和 redo, 需要重新设计一下
         fileMap.forEach((fileUID, wcMap) -> {
             try {
                 saveWordCountRepository.saveFromWordCountMap(fileUID, partition, wcMap);
