@@ -56,6 +56,9 @@ public class ProgressManager {
         return true;
     }
 
+    // TODO: 2024/6/16 存在的问题:
+    //  如果前面做了幂等处理, 那么这里的 double check 就多余了;
+    //  在累计计数的时候依旧使用的是 on duplicate 更新, 存在对主键 ID 的浪费
     private void updateProgress(int fileUID, int chunkId, int partitionNum) {
         String key = fileUID + "&" + chunkId; // redis 作为临时计数的 key
         RAtomicLong cnt = redissonClient.getAtomicLong(key);
