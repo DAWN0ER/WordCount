@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.WordCountMapper;
-import priv.dawn.workers.utils.ProgressManager;
+import priv.dawn.workers.domain.ProgressManager;
 
 import java.util.List;
 

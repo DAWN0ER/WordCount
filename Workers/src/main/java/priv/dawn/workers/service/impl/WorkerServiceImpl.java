@@ -10,11 +10,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.mapreduceapi.api.WorkerService;
+import priv.dawn.workers.domain.ProgressManager;
 import priv.dawn.workers.mapper.ChunkReadMapper;
 import priv.dawn.workers.mapper.WordCountMapper;
 import priv.dawn.workers.pojo.ChunkDTO;
-import priv.dawn.workers.utils.CountWordUtil;
-import priv.dawn.workers.utils.ProgressManager;
+import priv.dawn.workers.utils.CustomMassageUtil;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -48,9 +48,8 @@ public class WorkerServiceImpl implements WorkerService {
         log.info("load " + chunkNum + " chunks of file: " + fileUID + " begin form chunk " + chunkBegin);
         int chunkEnd = chunkBegin + chunkNum - 1;
         List<ChunkDTO> chunks = chunkReadMapper.getChunks(fileUID, chunkBegin, chunkEnd);
-        // 判断chunk缺失和数字对不上的问题
         if (chunks.size() != chunkNum) return -1;
-        // TODO: 2024/5/6 上面都是为了模拟分布式分块存储系统的交互, 因为这个框架里面没有这样一个实际的系统, 所以写的很潦草
+        //上面都是为了模拟分布式分块存储系统的交互, 因为这个框架里面没有这样一个实际的系统, 所以写的很潦草
 
         int finished = 0;
         for (ChunkDTO chunk : chunks) {
@@ -77,8 +76,7 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Override
     public boolean createOrder(int fileUID, int chunkNum) {
-        if(chunkNum<=0) return false; // chunkNum 违规
-        return progressManager.createProgress(fileUID,chunkNum);
+        return progressManager.createProgress(fileUID, chunkNum);
     }
 
 
@@ -92,26 +90,17 @@ public class WorkerServiceImpl implements WorkerService {
 
         @Override
         public void run() {
-//            log.info(Thread.currentThread().getName() + " process file " + fileUID + " chunk " + chunk.getChunkId());
 
-            // kafka 分区代替 map 发送消息
-            // 分区算法写在外面可能比较合适, 可以通过获得 partition 的详细信息来做后续的工作, 也从这一刻开始要求强一致性
             int partitionNum = kafkaTemplate.partitionsFor(TOPIC).size();
 
             // 构造消息并发送
-            ArrayList<CustomMessage> messages = CountWordUtil.generateMsgPartitionMapperFromChunk(fileUID, chunk, partitionNum);
+            ArrayList<CustomMessage> messages = CustomMassageUtil.generateFromChunk(chunk, partitionNum);
             for (int partition = 0; partition < partitionNum; partition++) {
                 CustomMessage msg = messages.get(partition);
-                String key = String.valueOf(fileUID);
+                String key = fileUID + "-" + chunk.getChunkId() + "-" + partition + "-" + partitionNum; // 根据 key 可以精确定位幂等
                 kafkaTemplate.send(TOPIC, partition, key, msg.toJsonStr()).addCallback(
-                        success -> {
-                            if (success != null)
-                                progressManager.updateProgress(success.getProducerRecord(), partitionNum);
-                        },
-                        failure -> {
-                            // TODO: 2024/5/5 还没想好失败怎么办
-                            log.warn(Thread.currentThread().getName() + " call back failure: " + failure);
-                        }
+                        success -> {},
+                        failure -> log.error("fail to send massage: " + failure)
                 );
             }
         }

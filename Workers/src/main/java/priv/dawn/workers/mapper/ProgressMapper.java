@@ -11,8 +11,7 @@ public interface ProgressMapper {
     @Insert("INSERT INTO t_file_progress (file_uid, chunks_num) VALUES (#{uid},#{num});")
     void saveNewProgress(@Param("uid") int fileUID, @Param("num") int chunkNum);
 
-    //如果 chunk_num=0 成功更新的话, 说明记录有问题啊
-    @Insert("INSERT INTO t_file_progress (file_uid,chunks_num) VALUES (#{uid},-1) ON DUPLICATE KEY UPDATE finished=finished+1;")
+    @Insert("UPDATE t_file_progress SET finished=finished+1 WHERE file_uid = #{udi};")
     void progressAdvanceOne(@Param("uid") int fileUID);
 
     @Select("SELECT TRUNCATE(finished / chunks_num *100,2) FROM t_file_progress WHERE file_uid=#{uid};")

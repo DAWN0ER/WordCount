@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.workers.mapper.ProgressMapper;
-import priv.dawn.workers.utils.ProgressManager;
+import priv.dawn.workers.domain.ProgressManager;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;

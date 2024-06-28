@@ -1,4 +1,4 @@
-package priv.dawn.workers.utils;
+package priv.dawn.workers.domain;
 
 import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +47,10 @@ public class ProgressManager {
         updateProgress(fileUID, chunkId, partitionNum);
     }
 
-    public boolean createProgress(int fileUID, int todoChunksNum) {
+    public boolean createProgress(int fileUID, int chunkNum) {
+        if (chunkNum <= 0) return false; // chunkNum 违规
         try {
-            progressMapper.saveNewProgress(fileUID, todoChunksNum);
+            progressMapper.saveNewProgress(fileUID, chunkNum);
         } catch (DuplicateKeyException e) {
             return false; // 订单冲突
         }
