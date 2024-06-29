@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.reducer.mapper.WordCountMapper;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 
 @Slf4j
 @Repository
@@ -24,18 +24,19 @@ public class SaveWordCountRepository {
     @Resource
     RedissonClient reducerRedisson;
 
-    // 对于每一个 chunk , 都必须要么全部录入, 要么全部 undo
-    @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = RuntimeException.class)
-    public void saveFromWordCountMap(int fileUID, int partition, HashMap<String, Integer> wordCntMap) {
+    // 只有同一个 partition 的才会有冲突死锁的问题, 所以提前上锁
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void saveFromMsg(int fileUID, int partition, CustomMessage msg) {
 
         String lockKey = fileUID + "-" + partition;
         RLock lock = reducerRedisson.getLock(lockKey);
-        lock.lock();
-
         try {
-            wordCntMap.forEach((word, count) -> {
+            lock.lock();
+            msg.getWordCountList().forEach(e->{
+                String word = e.getWord();
+                int count = e.getCount();
                 if (checkIfIllegal(word, count)) {
-                    throw new RuntimeException("非法参数: " + word + " | " + count);
+                    throw new RuntimeException("Illegal argument: " + word + " | " + count);
                 }
                 wcMapper.saveWordCount(fileUID, word, count);
             });

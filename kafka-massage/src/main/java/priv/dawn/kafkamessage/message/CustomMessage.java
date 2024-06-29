@@ -17,8 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 public class CustomMessage {
 
-    @JsonProperty("cid")
-    private int chunkId;
     @JsonProperty("words")
     private List<WordCount> wordCountList;
 
@@ -32,8 +30,7 @@ public class CustomMessage {
         int count;
     }
 
-    public CustomMessage(int chunkId, HashMap<String, Integer> map) {
-        this.chunkId = chunkId;
+    public CustomMessage(HashMap<String, Integer> map) {
         this.wordCountList = new ArrayList<>(map.size());
         map.forEach((String word, Integer cnt) -> this.wordCountList.add(new WordCount(word, cnt)));
     }

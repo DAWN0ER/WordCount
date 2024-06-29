@@ -35,12 +35,23 @@ CREATE TABLE IF NOT EXISTS t_file_progress
 
 CREATE TABLE IF NOT EXISTS t_file_word_count
 (
-    id          INT NOT NULL AUTO_INCREMENT,
-    file_uid    INT NOT NULL,
-    word        CHAR(12) NOT NULL,
-    cnt         INT NOT NULL,
+    id       INT      NOT NULL AUTO_INCREMENT,
+    file_uid INT      NOT NULL,
+    word     CHAR(12) NOT NULL,
+    cnt      INT      NOT NULL,
 
-    PRIMARY KEY id(id),
-    UNIQUE KEY file_word(file_uid,word)
-) AUTO_INCREMENT=1;
+    PRIMARY KEY id (id),
+    UNIQUE KEY file_word (file_uid, word)
+) AUTO_INCREMENT = 1;
 
+CREATE TABLE IF NOT EXISTS t_msg_key
+(
+    id        INT NOT NULL AUTO_INCREMENT,
+    file_uid  INT NOT NULL,
+    chunk_id  INT NOT NULL,
+    part INT NOT NULL,
+    part_num  INT NOT NULL,
+
+    PRIMARY KEY id (id),
+    UNIQUE KEY only_key (file_uid, chunk_id)
+) AUTO_INCREMENT = 1;

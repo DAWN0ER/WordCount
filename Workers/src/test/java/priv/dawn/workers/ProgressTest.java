@@ -41,9 +41,8 @@ public class ProgressTest extends WorkersApplicationTests {
     @Test
     public void threadTest() {
         int pn = 4;
-        int chunId = 3;
         int uid = 996;
-        String json = new CustomMessage(chunId, new ArrayList<>()).toJsonStr();
+        String json = new CustomMessage(new ArrayList<>()).toJsonStr();
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", 0, String.valueOf(uid), json);
         ExecutorService pool = Executors.newFixedThreadPool(pn);
         int loop = pn;

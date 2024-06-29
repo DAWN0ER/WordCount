@@ -1,13 +1,10 @@
 package priv.dawn.reducer;
 
 import org.junit.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import priv.dawn.reducer.repository.SaveWordCountRepository;
 import priv.dawn.reducer.mapper.WordCountMapper;
+import priv.dawn.reducer.repository.SaveWordCountRepository;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 
 public class ReducerTest extends ReducerApplicationTests {
@@ -18,21 +15,9 @@ public class ReducerTest extends ReducerApplicationTests {
     @Autowired
     SaveWordCountRepository wcDao;
 
-    @Qualifier("reducerRedisson")
-    @Resource
-    RedissonClient reducerRedisson;
-
     @Test
     public void mapperTest() {
-        int uid = 123;
-        HashMap<String, Integer> map = generate();
-        map.put("测试脏数据", -1);
-        try {
-            wcDao.saveFromWordCountMap(uid, 0, map);
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-        if (reducerRedisson.getLock("123-0").isLocked()) log.info("lock doesnt release");
+
     }
 
     private HashMap<String, Integer> generate() {

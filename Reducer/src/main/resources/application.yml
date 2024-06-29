@@ -21,8 +21,8 @@ spring:
       group-id: word-count-reducers
       max-poll-records: 20
     listener:
-      type: batch
-      ack-mode: batch
+      type: single
+      ack-mode: manual
       concurrency: 4
 mybatis:
   executor-type: batch
