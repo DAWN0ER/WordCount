@@ -10,7 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.mapreduceapi.api.WorkerService;
-import priv.dawn.workers.domain.ProgressManager;
+import priv.dawn.workers.domain.ProgressDao;
 import priv.dawn.workers.mapper.ChunkReadMapper;
 import priv.dawn.workers.mapper.WordCountMapper;
 import priv.dawn.workers.pojo.ChunkDTO;
@@ -34,7 +34,7 @@ public class WorkerServiceImpl implements WorkerService {
     @Autowired
     private ChunkReadMapper chunkReadMapper;
     @Autowired
-    private ProgressManager progressManager;
+    private ProgressDao progressDao;
     @Autowired
     private WordCountMapper wordCountMapper;
 
@@ -66,7 +66,7 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Override
     public float getProgress(int fileUID) {
-        return progressManager.getProgress(fileUID);
+        return progressDao.getProgress(fileUID);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Override
     public boolean createOrder(int fileUID, int chunkNum) {
-        return progressManager.createProgress(fileUID, chunkNum);
+        return progressDao.createProgress(fileUID, chunkNum);
     }
 
 

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.mapper.WordCountMapper;
-import priv.dawn.workers.domain.ProgressManager;
+import priv.dawn.workers.domain.ProgressDao;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class WorkerServiceTest extends WorkersApplicationTests {
     WorkerService service;
 
     @Autowired
-    ProgressManager manager;
+    ProgressDao manager;
 
     @Autowired
     KafkaTemplate<String, String> kafka;

@@ -42,7 +42,8 @@ public class CustomMassageUtil {
         return messages;
     }
 
-    public static CustomMessage regenerateOneByKey(String key){
+    // TODO: 2024/6/28 幂等重试的方法
+    public static CustomMessage generateOneByKey(String key){
         return null;
     }
 

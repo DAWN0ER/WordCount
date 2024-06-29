@@ -20,10 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class ProgressManager {
-
-    // TODO: 2024/5/6 由于 finished chunk 这个原子自增操作是在 mysql 中通过 On Duplicate key 完成的, 未必线程安全,
-    //  所以每次更新进度就需要上锁, 后续改成现在 Redis 里面更新进度, 然后定时推送到 Mysql 这种异步更新策略
+public class ProgressDao {
 
     private static final String LOCK = "WORKER_LOCK";
 
@@ -57,9 +54,7 @@ public class ProgressManager {
         return true;
     }
 
-    // TODO: 2024/6/16 存在的问题:
-    //  如果前面做了幂等处理, 那么这里的 double check 就多余了;
-    //  在累计计数的时候依旧使用的是 on duplicate 更新, 存在对主键 ID 的浪费
+    // TODO: 2024/6/29 我擦，写的好烂，为什么要把每一个partition的处理进度放在 redis 里面，万一出问题直接完蛋
     private void updateProgress(int fileUID, int chunkId, int partitionNum) {
         String key = fileUID + "&" + chunkId; // redis 作为临时计数的 key
         RAtomicLong cnt = redissonClient.getAtomicLong(key);

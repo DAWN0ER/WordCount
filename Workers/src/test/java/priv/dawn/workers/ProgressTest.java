@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import priv.dawn.kafkamessage.message.CustomMessage;
 import priv.dawn.workers.mapper.ProgressMapper;
-import priv.dawn.workers.domain.ProgressManager;
+import priv.dawn.workers.domain.ProgressDao;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +17,7 @@ public class ProgressTest extends WorkersApplicationTests {
     private ProgressMapper mapper;
 
     @Autowired
-    private ProgressManager manager;
+    private ProgressDao manager;
 
     @Test
     public void mapperTest() {

@@ -22,6 +22,8 @@ import java.util.List;
 @Service("wordCountClient")
 public class WordCountClientRPC implements WordCountService {
 
+    private static final int CHUNKS_PRE_WORKER = 10;
+
     @Resource
     @Qualifier("webSocketThreadPool")
     ThreadPoolTaskExecutor webSocketExecutor;
@@ -29,7 +31,7 @@ public class WordCountClientRPC implements WordCountService {
     @DubboReference
     WorkerService workerService;
 
-    @Autowired // TODO: 2024/5/11 这个 Mapper 实际上是代替文件分块储存服务的 API, 后续会优化简单优化性能
+    @Autowired
     FileMapper fileMapper;
 
     @Override
@@ -43,13 +45,12 @@ public class WordCountClientRPC implements WordCountService {
 
         // 每个chunk 是 2kb 的数据, 希望每个worker能一次处理2mb-3mb的数据
         log.info("Order created: " + fileUID);
-        int chunksPreWorker = 10;
-        int workersNum = Math.round(1.f * chunkNum / chunksPreWorker);
+        int workersNum = Math.round(1.f * chunkNum / CHUNKS_PRE_WORKER);
         int begin = 1;
-        // TODO: 2024/5/15 报错了的话还是直接去RPC那边看报错, 暂时是这个策略, 后续通过查资料再来看看怎么解决
+
         while (workersNum-- > 1) {
-            workerService.loadFile(fileUID, begin, chunksPreWorker);
-            begin += chunksPreWorker;
+            workerService.loadFile(fileUID, begin, CHUNKS_PRE_WORKER);
+            begin += CHUNKS_PRE_WORKER;
         }
         workerService.loadFile(fileUID, begin, chunkNum - begin + 1);
 
