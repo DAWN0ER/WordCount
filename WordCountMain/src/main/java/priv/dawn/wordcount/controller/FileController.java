@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/v1/api/file")
+@RequestMapping("/v2/api/file")
 public class FileController {
 
     @Autowired
