@@ -15,7 +15,7 @@
         <module>Workers</module>
         <module>Reducer</module>
         <module>kafka-massage</module>
-        <module>word-count-api</module>
+        <module>word-count-common</module>
         <module>mq-domain</module>
     </modules>
 
