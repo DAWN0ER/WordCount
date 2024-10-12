@@ -1,14 +1,14 @@
 package priv.dawn.wordcount.mapper;
 
 import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import priv.dawn.wordcount.pojo.dto.FileInfoDTO;
 
 import java.util.List;
 
-@Mapper
+@Deprecated
+//@Mapper
 public interface FileMapper {
 
     @Insert("insert into t_file_chunks (file_uid,chunk_id,context) values(#{uid},#{chunkId},#{context});")

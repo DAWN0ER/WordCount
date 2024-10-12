@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 
+@Deprecated
 @Data
 @AllArgsConstructor
 @ToString

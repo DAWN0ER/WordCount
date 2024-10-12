@@ -14,13 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/demo/v1/api/file")
+@RequestMapping("/v1/api/file")
 public class FileController {
 
     @Autowired
     private FileStorageService fileStorageService;
 
-    @GetMapping("/get/{fileId}")
+    @GetMapping("/download/{fileId}")
     public void download(@PathVariable int fileId, HttpServletResponse response) throws IOException {
 
         TextFileVo textFileVo = fileStorageService.getFile(fileId);
@@ -49,7 +49,7 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public String upload(@RequestParam(value = "file") MultipartFile file) {
+    public String upload(@RequestParam("file") MultipartFile file) {
         char[] buffer = new char[1024];
         StringBuilder builder = new StringBuilder();
         int len;

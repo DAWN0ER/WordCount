@@ -7,7 +7,7 @@ import priv.dawn.wordcount.pojo.vo.WordCountListVO;
 import priv.dawn.wordcount.service.impl.WordCountClientRPC;
 
 @RestController
-@RequestMapping("/demo/v1/api/words")
+@RequestMapping("/v1/api/words")
 public class WordCountController {
 
     @Autowired
