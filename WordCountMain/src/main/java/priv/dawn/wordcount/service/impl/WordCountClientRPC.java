@@ -5,10 +5,9 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
 import priv.dawn.mapreduceapi.api.WorkerService;
-import priv.dawn.wordcount.domain.WordCountStateEnum;
 import priv.dawn.wordcount.domain.ProgressWebSocketServer;
+import priv.dawn.wordcount.domain.WordCountStateEnum;
 import priv.dawn.wordcount.mapper.FileMapper;
 import priv.dawn.wordcount.pojo.dto.FileInfoDTO;
 import priv.dawn.wordcount.pojo.vo.WordCountListVO;
@@ -18,8 +17,9 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Slf4j
-@Service("wordCountClient")
+//@Service("wordCountClient")
 public class WordCountClientRPC implements WordCountService {
 
     private static final int CHUNKS_PRE_WORKER = 10;

@@ -36,28 +36,27 @@ public class PrimaryDataSourceConfig {
 
     @Primary
     @Bean(name = "primaryDataSourceProperties")
-    @ConfigurationProperties(prefix = YML_PREFIX) // 读取 spring.datasource.primary 配置到 DataSourceProperties 对象
-    public DataSourceProperties ordersDataSourceProperties() {
+    @ConfigurationProperties(prefix = YML_PREFIX)
+    public DataSourceProperties primaryDataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Primary
     @Bean(name = "primaryDataSource")
     @ConfigurationProperties(prefix = YML_PREFIX + ".hikari")
-    // 读取 spring.datasource.orders 配置到 HikariDataSource 对象
-    public DataSource ordersDataSource(@Qualifier("primaryDataSourceProperties") DataSourceProperties properties) {
+    public DataSource primaryDataSource(@Qualifier("primaryDataSourceProperties") DataSourceProperties properties) {
         return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
-    //    @Primary
+    @Primary
     @Bean(name = "primaryTransactionManager")
-    public PlatformTransactionManager dataSourceTransactionManager(@Qualifier("primaryDataSource") DataSource dataSource) {
+    public PlatformTransactionManager primaryDataSourceTransactionManager(@Qualifier("primaryDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
+    @Primary
     @Bean(name = "primarySqlSessionFactory")
-//    @Primary
-    public SqlSessionFactory sqlSessionFactory(@Qualifier("primaryDataSource") DataSource dataSource) throws Exception {
+    public SqlSessionFactory primarySqlSessionFactory(@Qualifier("primaryDataSource") DataSource dataSource) throws Exception {
         final SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
         sessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(MAPPER_LOCATION));

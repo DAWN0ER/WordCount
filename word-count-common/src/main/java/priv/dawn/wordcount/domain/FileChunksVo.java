@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 public class FileChunksVo {
 
-    private Long fileUid;
+    private Integer fileUid;
     private String filename;
     private Integer chunkNum;
     private List<ChunkVo> chunks;

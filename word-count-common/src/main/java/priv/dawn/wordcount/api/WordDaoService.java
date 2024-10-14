@@ -15,8 +15,8 @@ public interface WordDaoService {
 
     List<Integer> saveWordCount(FileWordCountVo fileWordCountVo);
 
-    FileWordCountVo queryTopKWords(Long fileUid,Integer K);
+    FileWordCountVo queryTopKWords(Integer fileUid,Integer K);
 
-    FileWordCountVo queryWordCounts(Long fileUid, List<String> words);
+    FileWordCountVo queryWordCounts(Integer fileUid, List<String> words);
 
 }

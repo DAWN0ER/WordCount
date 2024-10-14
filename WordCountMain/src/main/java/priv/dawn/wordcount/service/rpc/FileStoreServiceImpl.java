@@ -1,6 +1,5 @@
 package priv.dawn.wordcount.service.rpc;
 
-import org.apache.dubbo.config.annotation.DubboService;
 import priv.dawn.wordcount.api.FileStoreService;
 import priv.dawn.wordcount.domain.FileChunksVo;
 
@@ -12,7 +11,7 @@ import priv.dawn.wordcount.domain.FileChunksVo;
  * @Since: 2024/10/12/22:02
  */
 
-@DubboService
+//@DubboService
 public class FileStoreServiceImpl implements FileStoreService {
 
     @Override

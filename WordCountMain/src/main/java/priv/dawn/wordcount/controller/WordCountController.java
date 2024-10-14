@@ -1,25 +1,32 @@
 package priv.dawn.wordcount.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import priv.dawn.wordcount.domain.WordCountStateEnum;
-import priv.dawn.wordcount.pojo.vo.WordCountListVO;
-import priv.dawn.wordcount.service.impl.WordCountClientRPC;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import priv.dawn.wordcount.domain.FileWordCountTaskVo;
+import priv.dawn.wordcount.domain.FileWordCountVo;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/v1/api/words")
+@RequestMapping("/v2/api/word")
 public class WordCountController {
 
-    @Autowired
-    WordCountClientRPC wordCountClient;
 
-    @GetMapping("/get/{uid}")
-    public WordCountListVO getWordCountOfFile(@PathVariable("uid") int uid) {
-        return wordCountClient.getWordCounts(uid);
+    @GetMapping("/count")
+    public FileWordCountTaskVo startCountWord(int id) {
+        return null;
     }
 
-    @PostMapping("/count")
-    public WordCountStateEnum startWordCount(@RequestParam("file_uid") int fileUID){
-        return wordCountClient.startCountWord(fileUID);
+    @GetMapping("/topK")
+    public FileWordCountVo getTopKWordCount(int id) {
+        return null;
     }
+
+    @PostMapping("/get")
+    public FileWordCountVo getCountOfWords(List<String> words){
+        return null;
+    }
+
 }

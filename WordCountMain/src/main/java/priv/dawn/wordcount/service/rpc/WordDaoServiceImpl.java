@@ -1,10 +1,12 @@
 package priv.dawn.wordcount.service.rpc;
 
-import org.apache.dubbo.config.annotation.DubboService;
 import priv.dawn.wordcount.api.WordDaoService;
+import priv.dawn.wordcount.dao.mapper.primary.WordCountMapper;
 import priv.dawn.wordcount.domain.FileWordCountVo;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,8 +16,11 @@ import java.util.List;
  * @Since: 2024/10/12/22:50
  */
 
-@DubboService
+//@DubboService
 public class WordDaoServiceImpl implements WordDaoService {
+
+    @Resource
+    WordCountMapper wordCountMapper;
 
     @Override
     public List<Integer> saveWordCount(FileWordCountVo fileWordCountVo) {
@@ -23,12 +28,18 @@ public class WordDaoServiceImpl implements WordDaoService {
     }
 
     @Override
-    public FileWordCountVo queryTopKWords(Long fileUid, Integer K) {
+    public FileWordCountVo queryTopKWords(Integer fileUid, Integer K) {
+        if(Objects.isNull(fileUid) || Objects.isNull(K) || K <= 0){
+            // TODO 抛出异常
+            return null;
+        }
+
+
         return null;
     }
 
     @Override
-    public FileWordCountVo queryWordCounts(Long fileUid, List<String> words) {
+    public FileWordCountVo queryWordCounts(Integer fileUid, List<String> words) {
         return null;
     }
 }

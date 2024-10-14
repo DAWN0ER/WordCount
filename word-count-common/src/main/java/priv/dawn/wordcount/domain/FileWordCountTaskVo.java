@@ -2,19 +2,19 @@ package priv.dawn.wordcount.domain;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * Created with IntelliJ IDEA.
  *
  * @Description:
  * @Auther: Dawn Yang
- * @Since: 2024/10/12/21:50
+ * @Since: 2024/10/14/15:00
  */
 
 @Data
-public class FileWordCountVo {
+public class FileWordCountTaskVo {
 
     private Integer fileUid;
-    private List<WordCountVo> wordCounts;
+    private Long taskId;
+    private String fileName;
+
 }
