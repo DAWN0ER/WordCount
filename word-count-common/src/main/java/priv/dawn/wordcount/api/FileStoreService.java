@@ -1,6 +1,6 @@
 package priv.dawn.wordcount.api;
 
-import priv.dawn.wordcount.domain.FileChunksVo;
+import priv.dawn.wordcount.domain.FileChunksDto;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +16,7 @@ public interface FileStoreService {
      * @param fileUid 文件id 标识符
      * @return FileVO chunks 默认全部
      */
-    FileChunksVo getFile(Long fileUid);
+    FileChunksDto getFile(Long fileUid);
 
     /**
      * 返回指定区间 [startChunk,endChunk] 的文件区块
@@ -25,12 +25,12 @@ public interface FileStoreService {
      * @param endChunk 结束区块索引(包含 endChunk)
      * @return FileVo chunks 只包含指定区间
      */
-    FileChunksVo getPagesByFile(Long fileUid, int startChunk, int endChunk);
+    FileChunksDto getPagesByFile(Long fileUid, int startChunk, int endChunk);
 
     /**
      * 返回指定文件的基础信息，没有 chunks，减小网路开销
      * @param fileUid 文件id 标识符
      * @return chunks 为空的 FileVo
      */
-    FileChunksVo getFileInfo(Long fileUid);
+    FileChunksDto getFileInfo(Long fileUid);
 }

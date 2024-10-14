@@ -7,16 +7,15 @@ import java.util.List;
 /**
  * Created with IntelliJ IDEA.
  *
- * @Description: 文件信息
+ * @Description:
  * @Auther: Dawn Yang
- * @Since: 2024/10/12/21:23
+ * @Since: 2024/10/12/21:50
  */
 
 @Data
-public class FileChunksVo {
+public class FileWordCountDto {
 
     private Integer fileUid;
-    private String filename;
-    private Integer chunkNum;
-    private List<ChunkVo> chunks;
+    private List<WordCountDto> wordCounts;
+
 }

@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import priv.dawn.wordcount.domain.FileWordCountTaskVo;
-import priv.dawn.wordcount.domain.FileWordCountVo;
+import priv.dawn.wordcount.pojo.vo.FileWordCountTaskVo;
+import priv.dawn.wordcount.pojo.vo.FileWordCountVo;
 
 import java.util.List;
 

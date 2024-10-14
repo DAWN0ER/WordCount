@@ -1,6 +1,6 @@
 package priv.dawn.wordcount.api;
 
-import priv.dawn.wordcount.domain.FileWordCountVo;
+import priv.dawn.wordcount.domain.FileWordCountDto;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ import java.util.List;
  */
 public interface WordDaoService {
 
-    List<Integer> saveWordCount(FileWordCountVo fileWordCountVo);
+    List<Integer> saveWordCount(FileWordCountDto fileWordCountDto);
 
-    FileWordCountVo queryTopKWords(Integer fileUid,Integer K);
+    FileWordCountDto queryTopKWords(Integer fileUid, Integer K);
 
-    FileWordCountVo queryWordCounts(Integer fileUid, List<String> words);
+    FileWordCountDto queryWordCounts(Integer fileUid, List<String> words);
 
 }

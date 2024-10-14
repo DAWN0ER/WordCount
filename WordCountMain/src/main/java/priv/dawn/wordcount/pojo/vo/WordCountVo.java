@@ -1,4 +1,4 @@
-package priv.dawn.wordcount.domain;
+package priv.dawn.wordcount.pojo.vo;
 
 import lombok.Data;
 
@@ -7,12 +7,13 @@ import lombok.Data;
  *
  * @Description:
  * @Auther: Dawn Yang
- * @Since: 2024/10/12/21:42
+ * @Since: 2024/10/14/18:20
  */
 
 @Data
 public class WordCountVo {
 
-    private String word;
-    private Integer count;
+    private Integer chunkId;
+    private String context;
+
 }

@@ -1,7 +1,7 @@
 package priv.dawn.wordcount.service.rpc;
 
 import priv.dawn.wordcount.api.FileStoreService;
-import priv.dawn.wordcount.domain.FileChunksVo;
+import priv.dawn.wordcount.domain.FileChunksDto;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,17 +15,17 @@ import priv.dawn.wordcount.domain.FileChunksVo;
 public class FileStoreServiceImpl implements FileStoreService {
 
     @Override
-    public FileChunksVo getFile(Long fileUid) {
+    public FileChunksDto getFile(Long fileUid) {
         return null;
     }
 
     @Override
-    public FileChunksVo getPagesByFile(Long fileUid, int startChunk, int endChunk) {
+    public FileChunksDto getPagesByFile(Long fileUid, int startChunk, int endChunk) {
         return null;
     }
 
     @Override
-    public FileChunksVo getFileInfo(Long fileUid) {
+    public FileChunksDto getFileInfo(Long fileUid) {
         return null;
     }
 }

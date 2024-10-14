@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-public class ChunkVo {
+public class ChunkDto {
 
     private Integer chunkId;
     private String context;
