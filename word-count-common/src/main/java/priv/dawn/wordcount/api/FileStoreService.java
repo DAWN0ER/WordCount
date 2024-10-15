@@ -5,7 +5,7 @@ import priv.dawn.wordcount.domain.FileChunksDto;
 /**
  * Created with IntelliJ IDEA.
  *
- * @Description:
+ * @Description: 文件存储调用接口
  * @Auther: Dawn Yang
  * @Since: 2024/10/12/21:23
  */

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint("/progress/{fileUID}")
-@Component // WebSocket 好像默认是多例的
+@Component
 @Slf4j
 public class ProgressWebSocketServer {
 

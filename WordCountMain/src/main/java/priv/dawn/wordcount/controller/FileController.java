@@ -1,11 +1,11 @@
 package priv.dawn.wordcount.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import priv.dawn.wordcount.pojo.vo.TextFileVo;
 import priv.dawn.wordcount.service.FileStorageService;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -17,13 +17,15 @@ import java.util.Objects;
 @RequestMapping("/v2/api/file")
 public class FileController {
 
-    @Autowired
+    @Resource
     private FileStorageService fileStorageService;
 
     @GetMapping("/download/{fileId}")
     public void download(@PathVariable int fileId, HttpServletResponse response) throws IOException {
 
+        // TODO 这个接口后面要改
         TextFileVo textFileVo = fileStorageService.getFile(fileId);
+
         String context = textFileVo.getContext();
         if (Objects.isNull(context)) {
             response.sendError(405, "File Error");

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.ToString;
 
+@Deprecated
 @Getter
 @ToString
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)

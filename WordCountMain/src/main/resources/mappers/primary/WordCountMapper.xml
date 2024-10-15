@@ -155,4 +155,9 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
+  <update id="updateAppendCount" parameterType="map" >
+    update word_count
+    set cnt = #{record.cnt,jdbcType=INTEGER} + cnt
+    where file_uid = #{record.fileUid,jdbcType=INTEGER} and word = #{record.word,jdbcType=CHAR};
+  </update>
 </mapper>
