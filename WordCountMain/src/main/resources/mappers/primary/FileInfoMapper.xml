@@ -1,33 +1,34 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="priv.dawn.wordcount.dao.mapper.primary.FileInfoMapper" >
-  <resultMap id="BaseResultMap" type="priv.dawn.wordcount.dao.domain.FileInfo" >
-    <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="file_uid" property="fileUid" jdbcType="INTEGER" />
-    <result column="file_name" property="fileName" jdbcType="VARCHAR" />
-    <result column="chunk_num" property="chunkNum" jdbcType="INTEGER" />
-    <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
-    <result column="updated_time" property="updatedTime" jdbcType="TIMESTAMP" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="priv.dawn.wordcount.dao.mapper.primary.FileInfoMapper">
+  <resultMap id="BaseResultMap" type="priv.dawn.wordcount.dao.domain.FileInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="file_uid" jdbcType="INTEGER" property="fileUid" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="chunk_num" jdbcType="INTEGER" property="chunkNum" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    <result column="status" jdbcType="TINYINT" property="status" />
   </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -38,25 +39,25 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -67,115 +68,125 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Base_Column_List" >
-    id, file_uid, file_name, chunk_num, created_time, updated_time
+  <sql id="Base_Column_List">
+    id, file_uid, file_name, chunk_num, created_time, updated_time, status
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="priv.dawn.wordcount.dao.domain.FileInfoExample" >
+  <select id="selectByExample" parameterType="priv.dawn.wordcount.dao.domain.FileInfoExample" resultMap="BaseResultMap">
     select
-    <if test="distinct" >
+    <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
     from file_info
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
-    <if test="orderByClause != null" >
+    <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="priv.dawn.wordcount.dao.domain.FileInfoExample" >
+  <delete id="deleteByExample" parameterType="priv.dawn.wordcount.dao.domain.FileInfoExample">
     delete from file_info
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="priv.dawn.wordcount.dao.domain.FileInfo" >
+  <insert id="insert" parameterType="priv.dawn.wordcount.dao.domain.FileInfo">
     insert into file_info (id, file_uid, file_name, 
-      chunk_num, created_time, updated_time
-      )
+      chunk_num, created_time, updated_time, 
+      status)
     values (#{id,jdbcType=BIGINT}, #{fileUid,jdbcType=INTEGER}, #{fileName,jdbcType=VARCHAR}, 
-      #{chunkNum,jdbcType=INTEGER}, #{createdTime,jdbcType=TIMESTAMP}, #{updatedTime,jdbcType=TIMESTAMP}
-      )
+      #{chunkNum,jdbcType=INTEGER}, #{createdTime,jdbcType=TIMESTAMP}, #{updatedTime,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=TINYINT})
   </insert>
-  <insert id="insertSelective" parameterType="priv.dawn.wordcount.dao.domain.FileInfo" >
+  <insert id="insertSelective" parameterType="priv.dawn.wordcount.dao.domain.FileInfo">
     insert into file_info
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
         id,
       </if>
-      <if test="fileUid != null" >
+      <if test="fileUid != null">
         file_uid,
       </if>
-      <if test="fileName != null" >
+      <if test="fileName != null">
         file_name,
       </if>
-      <if test="chunkNum != null" >
+      <if test="chunkNum != null">
         chunk_num,
       </if>
-      <if test="createdTime != null" >
+      <if test="createdTime != null">
         created_time,
       </if>
-      <if test="updatedTime != null" >
+      <if test="updatedTime != null">
         updated_time,
       </if>
+      <if test="status != null">
+        status,
+      </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
         #{id,jdbcType=BIGINT},
       </if>
-      <if test="fileUid != null" >
+      <if test="fileUid != null">
         #{fileUid,jdbcType=INTEGER},
       </if>
-      <if test="fileName != null" >
+      <if test="fileName != null">
         #{fileName,jdbcType=VARCHAR},
       </if>
-      <if test="chunkNum != null" >
+      <if test="chunkNum != null">
         #{chunkNum,jdbcType=INTEGER},
       </if>
-      <if test="createdTime != null" >
+      <if test="createdTime != null">
         #{createdTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="updatedTime != null" >
+      <if test="updatedTime != null">
         #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
       </if>
     </trim>
   </insert>
-  <update id="updateByExampleSelective" parameterType="map" >
+  <update id="updateByExampleSelective" parameterType="map">
     update file_info
-    <set >
-      <if test="record.id != null" >
+    <set>
+      <if test="record.id != null">
         id = #{record.id,jdbcType=BIGINT},
       </if>
-      <if test="record.fileUid != null" >
+      <if test="record.fileUid != null">
         file_uid = #{record.fileUid,jdbcType=INTEGER},
       </if>
-      <if test="record.fileName != null" >
+      <if test="record.fileName != null">
         file_name = #{record.fileName,jdbcType=VARCHAR},
       </if>
-      <if test="record.chunkNum != null" >
+      <if test="record.chunkNum != null">
         chunk_num = #{record.chunkNum,jdbcType=INTEGER},
       </if>
-      <if test="record.createdTime != null" >
+      <if test="record.createdTime != null">
         created_time = #{record.createdTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="record.updatedTime != null" >
+      <if test="record.updatedTime != null">
         updated_time = #{record.updatedTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=TINYINT},
+      </if>
     </set>
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByExample" parameterType="map" >
+  <update id="updateByExample" parameterType="map">
     update file_info
     set id = #{record.id,jdbcType=BIGINT},
       file_uid = #{record.fileUid,jdbcType=INTEGER},
       file_name = #{record.fileName,jdbcType=VARCHAR},
       chunk_num = #{record.chunkNum,jdbcType=INTEGER},
       created_time = #{record.createdTime,jdbcType=TIMESTAMP},
-      updated_time = #{record.updatedTime,jdbcType=TIMESTAMP}
-    <if test="_parameter != null" >
+      updated_time = #{record.updatedTime,jdbcType=TIMESTAMP},
+      status = #{record.status,jdbcType=TINYINT}
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>

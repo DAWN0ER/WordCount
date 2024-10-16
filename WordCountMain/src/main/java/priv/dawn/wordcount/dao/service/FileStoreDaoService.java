@@ -17,6 +17,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +41,9 @@ public class FileStoreDaoService {
     private FileChunksMapper fileChunksMapper;
 
     public List<Integer> saveFileChunks(List<DaoFileChunkDto> fileChunkDtoList, int fileUid) {
+        if (fileUid <= 0) {
+            return Collections.emptyList();
+        }
         List<Integer> success = new ArrayList<>();
         for (DaoFileChunkDto dto : fileChunkDtoList) {
             FileChunks record = new FileChunks();
@@ -66,16 +70,19 @@ public class FileStoreDaoService {
         record.setFileUid(fileInfoDto.getFileUid());
         record.setFileName(fileInfoDto.getFileName());
         record.setChunkNum(fileInfoDto.getChunkNum());
+        if (Objects.nonNull(fileInfoDto.getStatus())) {
+            record.setStatus((byte) fileInfoDto.getStatus().intValue());
+        }
         try {
             success = fileInfoMapper.insert(record);
         } catch (Exception e) {
-            log.error("[saveFileInfo] 异常: record;{}", gson.toJson(record),e);
+            log.error("[saveFileInfo] 异常: record;{}", gson.toJson(record), e);
         }
         return success;
     }
 
     public List<DaoFileChunkDto> getFileChunks(int fileUid, List<Integer> chunkIdList) {
-        if (CollectionUtils.isEmpty(chunkIdList)) {
+        if (CollectionUtils.isEmpty(chunkIdList) || fileUid <= 0) {
             return Collections.emptyList();
         }
         FileChunksExample example = new FileChunksExample();
@@ -84,7 +91,7 @@ public class FileStoreDaoService {
         try {
             select = fileChunksMapper.selectByExampleWithBLOBs(example);
         } catch (Exception e) {
-            log.error("[getFileChunks] 异常: fileUid:{},chunkIdList:{}", fileUid, chunkIdList,e);
+            log.error("[getFileChunks] 异常: fileUid:{},chunkIdList:{}", fileUid, chunkIdList, e);
             return Collections.emptyList();
         }
         List<DaoFileChunkDto> result = castToDto(select);
@@ -98,10 +105,10 @@ public class FileStoreDaoService {
         List<FileInfo> list = null;
         try {
             list = fileInfoMapper.selectByExample(example);
-        } catch (Exception e){
-            log.error("[getFileInfo] 异常: fileUid;{}",fileUid,e);
+        } catch (Exception e) {
+            log.error("[getFileInfo] 异常: fileUid;{}", fileUid, e);
         }
-        if(CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         FileInfo fileInfo = list.get(0);
@@ -109,6 +116,7 @@ public class FileStoreDaoService {
         result.setFileName(fileInfo.getFileName());
         result.setChunkNum(fileInfo.getChunkNum());
         result.setFileUid(fileInfo.getFileUid());
+        result.setStatus(fileInfo.getStatus().intValue());
         return result;
     }
 

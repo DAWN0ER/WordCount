@@ -3,7 +3,7 @@ package priv.dawn.wordcount.controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import priv.dawn.wordcount.pojo.vo.TextFileVo;
-import priv.dawn.wordcount.service.FileStorageService;
+import priv.dawn.wordcount.service.TextFileService;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -18,25 +18,25 @@ import java.util.Objects;
 public class FileController {
 
     @Resource
-    private FileStorageService fileStorageService;
+    private TextFileService textFileService;
 
-    @GetMapping("/download/{fileId}")
-    public void download(@PathVariable int fileId, HttpServletResponse response) throws IOException {
+    @GetMapping("/download/{fileUid}")
+    public void download(@PathVariable int fileUid, HttpServletResponse response) throws IOException {
 
-        // TODO 这个接口后面要改
-        TextFileVo textFileVo = fileStorageService.getFile(fileId);
+        TextFileVo textFileVo = textFileService.getFile(fileUid);
 
-        String context = textFileVo.getContext();
-        if (Objects.isNull(context)) {
-            response.sendError(405, "File Error");
+        if (Objects.isNull(textFileVo)) {
+            response.sendError(404, "File Not Found");
             return;
         }
 
+        String context = textFileVo.getContext();
         try {
             InputStream inputStream = new ByteArrayInputStream(context.getBytes(StandardCharsets.UTF_8));
             response.reset();
             response.setContentType("application/octet-stream");
-            response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(textFileVo.getFilename(), "UTF-8"));
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=" + URLEncoder.encode(textFileVo.getFilename(), "UTF-8"));
             ServletOutputStream outputStream = response.getOutputStream();
             byte[] b = new byte[1024];
             int len;
@@ -62,9 +62,15 @@ public class FileController {
                 builder.append(buffer, 0, len);
             }
             String filename = file.getOriginalFilename();
-            TextFileVo textFileVo = new TextFileVo(filename, builder.toString());
-            fileStorageService.saveFile(textFileVo);
-            return "Success : " + filename;
+            TextFileVo textFileVo = new TextFileVo();
+            textFileVo.setFilename(filename);
+            textFileVo.setContext(builder.toString());
+            int fileUid = textFileService.updateFile(textFileVo);
+            if (fileUid>0) {
+                return "Success to upload, uid=" + fileUid;
+            } else {
+                return "Fail to upload";
+            }
         } catch (Exception e) {
             return "Fail : " + e;
         }

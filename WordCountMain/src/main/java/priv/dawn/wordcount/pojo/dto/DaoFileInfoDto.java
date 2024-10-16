@@ -15,5 +15,6 @@ public class DaoFileInfoDto {
     private Integer fileUid;
     private String fileName;
     private Integer chunkNum;
+    private Integer status;
 
 }

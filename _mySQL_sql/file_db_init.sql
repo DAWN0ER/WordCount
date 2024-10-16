@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS file_info
     file_uid     INT(10) UNSIGNED    NOT NULL COMMENT '文件标识id',
     file_name    VARCHAR(128)        NOT NULL COMMENT '文件名',
     chunk_num    INT(10)             NOT NULL COMMENT '分区数量',
+    status       TINYINT             NOT NULL DEFAULT 0 COMMENT '文件状态（1-INIT，2-STORED，3-DAMAGED）',
     created_time DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY pk (id),
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS file_info
   DEFAULT CHARSET = utf8mb4
   AUTO_INCREMENT = 1 COMMENT '文件基础信息表';
 
+ALTER TABLE file_info ADD COLUMN status TINYINT NOT NULL DEFAULT 0 COMMENT '文件状态（1-INIT，2-STORED，3-DAMAGED）';
 
 -- 可分库分表
 CREATE TABLE IF NOT EXISTS file_chunks

@@ -15,6 +15,8 @@ public class FileInfo {
 
     private Date updatedTime;
 
+    private Byte status;
+
     public Long getId() {
         return id;
     }
@@ -61,5 +63,13 @@ public class FileInfo {
 
     public void setUpdatedTime(Date updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public Byte getStatus() {
+        return status;
+    }
+
+    public void setStatus(Byte status) {
+        this.status = status;
     }
 }

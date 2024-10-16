@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Deprecated
 public class FileStorageServiceTest extends WordCountMainApplicationTests {
 
     @Autowired
@@ -25,7 +26,9 @@ public class FileStorageServiceTest extends WordCountMainApplicationTests {
         FileReader fileReader = new FileReader(file);
         BufferedReader reader = new BufferedReader(fileReader);
         String context = reader.lines().collect(Collectors.joining());
-        TextFileVo fileText = new TextFileVo("活着", context);
+        TextFileVo fileText = new TextFileVo();
+        fileText.setContext(context);
+        fileText.setFilename("活着");
         int uid = fileStorageService.saveFile(fileText);
         log.info("File uid: "+uid);
     }
