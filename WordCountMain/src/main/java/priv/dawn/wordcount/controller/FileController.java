@@ -66,7 +66,7 @@ public class FileController {
             fileStorageService.saveFile(textFileVo);
             return "Success : " + filename;
         } catch (Exception e) {
-            return "Fail : "+e;
+            return "Fail : " + e;
         }
     }
 

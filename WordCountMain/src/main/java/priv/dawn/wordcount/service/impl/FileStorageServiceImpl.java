@@ -1,6 +1,5 @@
 package priv.dawn.wordcount.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,10 +12,11 @@ import priv.dawn.wordcount.utils.UidGenerator;
 
 import java.util.ArrayList;
 
+@Deprecated
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-    @Autowired
+//    @Autowired
     private FileMapper fileMapper;
 
     @Override
@@ -38,7 +38,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         // 理论上生成 UID 是通过分布式 UID 算法生成的, 但是前提假设这个 UID 是不需要我们实现的
         // 所以简单用 UUID+Hash 实现
-        int uid = UidGenerator.getOneUid();
+        int uid = UidGenerator.getHashUid(fileText.getFilename());
         int chunkNum = dtos.size();
         FileInfoDTO fileInfoDTO = new FileInfoDTO(fileText.getFilename(), uid, chunkNum);
 
@@ -49,7 +49,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 fileMapper.saveFileInfo(fileInfoDTO);
                 flag = true; // 只要没报错就可以来到这
             } catch (DuplicateKeyException e) {
-                uid = UidGenerator.getOneUid();
+                uid = UidGenerator.getHashUid(fileInfoDTO.getFilename());
                 fileInfoDTO.setUid(uid);
                 // 重试
             }
