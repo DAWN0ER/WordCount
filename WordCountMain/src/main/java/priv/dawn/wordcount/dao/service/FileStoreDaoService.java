@@ -71,7 +71,7 @@ public class FileStoreDaoService {
         record.setFileName(fileInfoDto.getFileName());
         record.setChunkNum(fileInfoDto.getChunkNum());
         if (Objects.nonNull(fileInfoDto.getStatus())) {
-            record.setStatus((byte) fileInfoDto.getStatus().intValue());
+            record.setStatus(fileInfoDto.getStatus().byteValue());
         }
         try {
             success = fileInfoMapper.insert(record);
@@ -118,6 +118,28 @@ public class FileStoreDaoService {
         result.setFileUid(fileInfo.getFileUid());
         result.setStatus(fileInfo.getStatus().intValue());
         return result;
+    }
+
+    public int updateFileInfoSelective(DaoFileInfoDto fileInfoDto) {
+        if (Objects.isNull(fileInfoDto.getFileUid()) || fileInfoDto.getFileUid() <= 0) {
+            log.warn("[updateFileInfo] illegal param:{}", gson.toJson(fileInfoDto));
+            return 0;
+        }
+        FileInfoExample example = new FileInfoExample();
+        example.createCriteria().andFileUidEqualTo(fileInfoDto.getFileUid());
+
+        FileInfo record = new FileInfo();
+        record.setFileUid(fileInfoDto.getFileUid());
+        record.setFileName(fileInfoDto.getFileName());
+        record.setChunkNum(fileInfoDto.getChunkNum());
+        record.setStatus(fileInfoDto.getStatus().byteValue());
+
+        try {
+            return fileInfoMapper.updateByExampleSelective(record, example);
+        }catch (Exception e){
+            log.error("[updateFileInfo] 异常: record:{}",gson.toJson(record));
+            return 0;
+        }
     }
 
     private List<DaoFileChunkDto> castToDto(List<FileChunks> fileChunks) {

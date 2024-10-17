@@ -48,18 +48,19 @@ public class TextFileService {
 
         List<DaoFileChunkDto> daoFileChunkDtoList = splitToChunks(textFileVo.getContext());
         fileInfoDto.setChunkNum(daoFileChunkDtoList.size());
-
+        // 初始化 fileInfo
         int result = fileStoreDaoService.saveFileInfo(fileInfoDto);
         if (result == 0) {
             return -1;
         }
         fileInfoDto.setStatus(FileInfoStatusEnums.STORED.getStatus());
-
+        // 分块存储
         List<Integer> chunks = fileStoreDaoService.saveFileChunks(daoFileChunkDtoList, fileUid);
         if (chunks.size() < daoFileChunkDtoList.size()) {
             fileInfoDto.setStatus(FileInfoStatusEnums.DAMAGED.getStatus());
         }
-        result = fileStoreDaoService.saveFileInfo(fileInfoDto);
+        // 更新 fileInfo 状态
+        result = fileStoreDaoService.updateFileInfoSelective(fileInfoDto);
         if (result == 0) {
             return -1;
         }
