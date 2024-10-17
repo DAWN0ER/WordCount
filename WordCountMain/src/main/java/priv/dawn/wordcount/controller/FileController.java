@@ -72,7 +72,8 @@ public class FileController {
                 return "Fail to upload";
             }
         } catch (Exception e) {
-            return "Fail : " + e;
+            e.printStackTrace();
+            return "Fail to upload";
         }
     }
 
