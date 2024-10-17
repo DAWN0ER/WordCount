@@ -14,10 +14,7 @@ import priv.dawn.wordcount.pojo.dto.DaoFileChunkDto;
 import priv.dawn.wordcount.pojo.dto.DaoFileInfoDto;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,34 +48,34 @@ public class FileStoreDaoService {
             record.setChunkId(dto.getChunkId());
             record.setContext(dto.getContext());
 
-            int insert = -1;
             try {
-                insert = fileChunksMapper.insertSelective(record);
+                fileChunksMapper.insertSelective(record);
             } catch (Exception e) {
                 log.error("[saveFileChunks] 异常: record:{}", gson.toJson(record), e);
             }
-            if (insert > 0) {
-                success.add(dto.getChunkId());
-            }
+            success.add(dto.getChunkId());
         }
         return success;
     }
 
     public int saveFileInfo(DaoFileInfoDto fileInfoDto) {
-        int success = 0;
         FileInfo record = new FileInfo();
         record.setFileUid(fileInfoDto.getFileUid());
         record.setFileName(fileInfoDto.getFileName());
         record.setChunkNum(fileInfoDto.getChunkNum());
+        Date now = new Date();
+        record.setCreatedTime(now);
+        record.setUpdatedTime(now);
         if (Objects.nonNull(fileInfoDto.getStatus())) {
             record.setStatus(fileInfoDto.getStatus().byteValue());
         }
         try {
-            success = fileInfoMapper.insert(record);
+            fileInfoMapper.insert(record);
         } catch (Exception e) {
             log.error("[saveFileInfo] 异常: record;{}", gson.toJson(record), e);
+            return 0;
         }
-        return success;
+        return 1;
     }
 
     public List<DaoFileChunkDto> getFileChunks(int fileUid, List<Integer> chunkIdList) {
@@ -135,11 +132,12 @@ public class FileStoreDaoService {
         record.setStatus(fileInfoDto.getStatus().byteValue());
 
         try {
-            return fileInfoMapper.updateByExampleSelective(record, example);
+            fileInfoMapper.updateByExampleSelective(record, example);
         }catch (Exception e){
             log.error("[updateFileInfo] 异常: record:{}",gson.toJson(record));
             return 0;
         }
+        return 1;
     }
 
     private List<DaoFileChunkDto> castToDto(List<FileChunks> fileChunks) {

@@ -1,5 +1,6 @@
 package priv.dawn.wordcount.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import priv.dawn.wordcount.pojo.vo.TextFileVo;
@@ -13,6 +14,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+@Slf4j
 @RestController
 @RequestMapping("/v2/api/file")
 public class FileController {
@@ -52,6 +54,11 @@ public class FileController {
 
     @PostMapping("/upload")
     public String upload(@RequestParam("file") MultipartFile file) {
+
+        if(file.isEmpty()){
+            return "File is Empty";
+        }
+
         char[] buffer = new char[1024];
         StringBuilder builder = new StringBuilder();
         int len;
@@ -62,6 +69,7 @@ public class FileController {
                 builder.append(buffer, 0, len);
             }
             String filename = file.getOriginalFilename();
+            log.info("[upload]filename:{},fileSize:{}",filename,file.getSize());
             TextFileVo textFileVo = new TextFileVo();
             textFileVo.setFilename(filename);
             textFileVo.setContext(builder.toString());

@@ -1,7 +1,6 @@
 package priv.dawn.wordcount.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -28,7 +27,7 @@ public class WordCountClientRPC implements WordCountService {
     @Qualifier("webSocketThreadPool")
     ThreadPoolTaskExecutor webSocketExecutor;
 
-    @DubboReference
+//    @DubboReference
     WorkerService workerService;
 
     @Autowired

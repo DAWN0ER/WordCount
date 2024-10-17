@@ -1,6 +1,7 @@
 package priv.dawn.wordcount.service;
 
 import com.hankcs.hanlp.seg.common.Term;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import priv.dawn.wordcount.dao.service.FileStoreDaoService;
@@ -25,6 +26,7 @@ import java.util.Objects;
  * @Since: 2024/10/16/12:59
  */
 
+@Slf4j
 @Service
 public class TextFileService {
 
@@ -50,18 +52,20 @@ public class TextFileService {
         fileInfoDto.setChunkNum(daoFileChunkDtoList.size());
         // 初始化 fileInfo
         int result = fileStoreDaoService.saveFileInfo(fileInfoDto);
-        if (result == 0) {
+        if (result <= 0) {
             return -1;
         }
         fileInfoDto.setStatus(FileInfoStatusEnums.STORED.getStatus());
         // 分块存储
         List<Integer> chunks = fileStoreDaoService.saveFileChunks(daoFileChunkDtoList, fileUid);
         if (chunks.size() < daoFileChunkDtoList.size()) {
+            log.warn("[updateFile] Chunk Insert Exception, successSize:{}, originalSize:{}",
+                    chunks.size(),daoFileChunkDtoList.size());
             fileInfoDto.setStatus(FileInfoStatusEnums.DAMAGED.getStatus());
         }
         // 更新 fileInfo 状态
         result = fileStoreDaoService.updateFileInfoSelective(fileInfoDto);
-        if (result == 0) {
+        if (result <= 0) {
             return -1;
         }
         return fileUid;
@@ -70,7 +74,7 @@ public class TextFileService {
     public TextFileVo getFile(int fileUid) {
         if (fileUid <= 0) return null;
         DaoFileInfoDto fileInfo = fileStoreDaoService.getFileInfo(fileUid);
-        if (Objects.isNull(fileInfo)) {
+        if (Objects.isNull(fileInfo) || !canFileDownload(fileInfo)) {
             return null;
         }
         Integer chunkNum = fileInfo.getChunkNum();
@@ -119,6 +123,10 @@ public class TextFileService {
         int theBound = Math.min(context.length(), fromIndex + 20); // 默认相信 20 个字内一定有两个分词
         List<Term> segment = CustomTokenizer.segment(context.substring(fromIndex, theBound));
         return segment.get(1).offset + fromIndex;
+    }
+
+    private boolean canFileDownload(DaoFileInfoDto fileInfo){
+        return FileInfoStatusEnums.STORED.getStatus().equals(fileInfo.getStatus());
     }
 
 }
