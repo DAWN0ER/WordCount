@@ -1,7 +1,7 @@
 package priv.dawn.wordcount.service.rpc;
 
 import priv.dawn.wordcount.api.WordDaoService;
-import priv.dawn.wordcount.dao.mapper.primary.WordCountMapper;
+import priv.dawn.wordcount.dao.service.WordCountDaoService;
 import priv.dawn.wordcount.domain.FileWordCountDto;
 
 import javax.annotation.Resource;
@@ -20,7 +20,7 @@ import java.util.Objects;
 public class WordDaoServiceImpl implements WordDaoService {
 
     @Resource
-    WordCountMapper wordCountMapper;
+    WordCountDaoService wordCountDaoService;
 
     @Override
     public List<Integer> saveWordCount(FileWordCountDto fileWordCountDto) {

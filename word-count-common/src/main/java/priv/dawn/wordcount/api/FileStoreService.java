@@ -16,7 +16,7 @@ public interface FileStoreService {
      * @param fileUid 文件id 标识符
      * @return FileVO chunks 默认全部
      */
-    FileChunksDto getFile(Long fileUid);
+    FileChunksDto getFile(Integer fileUid);
 
     /**
      * 返回指定区间 [startChunk,endChunk] 的文件区块
@@ -25,12 +25,12 @@ public interface FileStoreService {
      * @param endChunk 结束区块索引(包含 endChunk)
      * @return FileVo chunks 只包含指定区间
      */
-    FileChunksDto getPagesByFile(Long fileUid, int startChunk, int endChunk);
+    FileChunksDto getPagesByFile(Integer fileUid, int startChunk, int endChunk);
 
     /**
      * 返回指定文件的基础信息，没有 chunks，减小网路开销
      * @param fileUid 文件id 标识符
      * @return chunks 为空的 FileVo
      */
-    FileChunksDto getFileInfo(Long fileUid);
+    FileChunksDto getFileInfo(Integer fileUid);
 }
