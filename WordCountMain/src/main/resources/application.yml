@@ -29,9 +29,8 @@ dubbo:
   application:
     name: wordcount-service
   registry:
-    address: nacos://127.0.0.1:8848
-    username: nacos
-    password: nacos
+    address: zookeeper://localhost:2181
+    group: wordcount
   protocol:
     name: dubbo
     port: 33305

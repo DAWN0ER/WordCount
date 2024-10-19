@@ -2,6 +2,7 @@ package priv.dawn.wordcount.service.rpc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import priv.dawn.wordcount.api.FileStoreService;
 import priv.dawn.wordcount.dao.service.FileStoreDaoService;
 import priv.dawn.wordcount.domain.ChunkDto;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  */
 
 @Slf4j
-//@DubboService
+@DubboService
 public class FileStoreServiceImpl implements FileStoreService {
 
     @Resource

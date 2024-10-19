@@ -1,5 +1,6 @@
 package priv.dawn.wordcount.service.rpc;
 
+import org.apache.dubbo.config.annotation.DubboService;
 import priv.dawn.wordcount.api.WordDaoService;
 import priv.dawn.wordcount.dao.service.WordCountDaoService;
 import priv.dawn.wordcount.domain.FileWordCountDto;
@@ -16,7 +17,7 @@ import java.util.Objects;
  * @Since: 2024/10/12/22:50
  */
 
-//@DubboService
+@DubboService
 public class WordDaoServiceImpl implements WordDaoService {
 
     @Resource

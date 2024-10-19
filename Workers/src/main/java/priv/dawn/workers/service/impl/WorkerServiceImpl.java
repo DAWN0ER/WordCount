@@ -9,7 +9,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import priv.dawn.kafkamessage.message.CustomMessage;
-import priv.dawn.mapreduceapi.api.WorkerService;
 import priv.dawn.workers.domain.ProgressDao;
 import priv.dawn.workers.mapper.ChunkReadMapper;
 import priv.dawn.workers.mapper.WordCountMapper;
@@ -24,7 +23,7 @@ import java.util.concurrent.RejectedExecutionException;
 @DubboService
 @Slf4j
 @Service
-public class WorkerServiceImpl implements WorkerService {
+public class WorkerServiceImpl {
 
 
     @Qualifier(value = "WorkerReadThreadPool")
@@ -43,7 +42,7 @@ public class WorkerServiceImpl implements WorkerService {
     private static final String TOPIC = "word_count";
 
     // DONE: 2024/5/4 这边线程不够用了之后会抛出拒绝异常, 在这边捕获返回值就是已经进入线程池的chunk的id, 表示完成个数
-    @Override
+//    @Override
     public int loadFile(int fileUID, int chunkBegin, int chunkNum) {
         log.info("load " + chunkNum + " chunks of file: " + fileUID + " begin form chunk " + chunkBegin);
         int chunkEnd = chunkBegin + chunkNum - 1;
@@ -64,17 +63,17 @@ public class WorkerServiceImpl implements WorkerService {
         return finished; // 真要出问题了反正查日志去
     }
 
-    @Override
+//    @Override
     public float getProgress(int fileUID) {
         return progressDao.getProgress(fileUID);
     }
 
-    @Override
+//    @Override
     public List<String> getWords(int fileUID) {
         return wordCountMapper.getTop100WordCount(fileUID);
     }
 
-    @Override
+//    @Override
     public boolean createOrder(int fileUID, int chunkNum) {
         return progressDao.createProgress(fileUID, chunkNum);
     }
