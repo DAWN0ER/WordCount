@@ -24,7 +24,7 @@ import java.util.Objects;
 public class FileServiceWrapper {
 
     @DubboReference
-    FileStoreService fileStoreService;
+    private FileStoreService fileStoreService;
 
     public ChunkDto getChunk(int fileUid, int chunkId) {
         if (fileUid <= 0 || chunkId <= 0) {
@@ -39,7 +39,6 @@ public class FileServiceWrapper {
             return null;
         }
         return chunks.get(0);
-
     }
 
 

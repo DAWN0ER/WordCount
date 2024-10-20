@@ -16,9 +16,9 @@ public interface WordDaoService {
     /**
      * 批量存入接口
      * @param fileWordCountDto 输入数据传输实例
-     * @return 成功的 ChunkId
+     * @return 成功的 Word
      */
-    List<Integer> saveWordCount(FileWordCountDto fileWordCountDto);
+    List<String> saveWordCount(FileWordCountDto fileWordCountDto);
 
     /**
      * 查询前 K 个热点词

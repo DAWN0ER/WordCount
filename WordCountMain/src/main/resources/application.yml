@@ -12,7 +12,7 @@ spring:
     host: localhost
     database: 11
 mybatis:
-  executor-type: batch
+  executor-type: SIMPLE # 大量处理的数据量都到千级别了
 
 datasource:
   primary:

@@ -50,10 +50,10 @@ public class FileStoreDaoService {
 
             try {
                 fileChunksMapper.insertSelective(record);
+                success.add(dto.getChunkId());
             } catch (Exception e) {
                 log.error("[saveFileChunks] 异常: record:{}", gson.toJson(record), e);
             }
-            success.add(dto.getChunkId());
         }
         return success;
     }
@@ -69,13 +69,14 @@ public class FileStoreDaoService {
         if (Objects.nonNull(fileInfoDto.getStatus())) {
             record.setStatus(fileInfoDto.getStatus().byteValue());
         }
+        int insert = 0;
         try {
-            fileInfoMapper.insert(record);
+            insert = fileInfoMapper.insert(record);
         } catch (Exception e) {
             log.error("[saveFileInfo] 异常: record;{}", gson.toJson(record), e);
             return 0;
         }
-        return 1;
+        return insert;
     }
 
     public List<DaoFileChunkDto> getFileChunks(int fileUid, List<Integer> chunkIdList) {
@@ -131,13 +132,17 @@ public class FileStoreDaoService {
         record.setChunkNum(fileInfoDto.getChunkNum());
         record.setStatus(fileInfoDto.getStatus().byteValue());
 
+        int update = 0;
         try {
-            fileInfoMapper.updateByExampleSelective(record, example);
+            update = fileInfoMapper.updateByExampleSelective(record, example);
         }catch (Exception e){
             log.error("[updateFileInfo] 异常: record:{}",gson.toJson(record));
             return 0;
         }
-        return 1;
+        if(update <= 0){
+            log.error("[updateFileInfo] update失败: record:{}",gson.toJson(record));
+        }
+        return update;
     }
 
     private List<DaoFileChunkDto> castToDto(List<FileChunks> fileChunks) {

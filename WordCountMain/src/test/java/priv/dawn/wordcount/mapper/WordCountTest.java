@@ -2,7 +2,6 @@ package priv.dawn.wordcount.mapper;
 
 import com.google.gson.Gson;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -37,16 +36,14 @@ public class WordCountTest {
 
     private final Logger logger = LoggerFactory.getLogger(WordCountTest.class);
 
-    @Before
-    public void doBefore() {
-        System.out.println("Before");
-
+    private void doBefore() {
+        AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(WordCountTest.class, TestMapperConfig.class);
+        mapper = ac.getBean(WordCountMapper.class);
     }
 
     @Test
     public void topKTest() {
-        AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(WordCountTest.class,TestMapperConfig.class);
-        mapper = ac.getBean(WordCountMapper.class);
+        doBefore();
         int K = 3;
         int fileUid = 1234;
         for (int k = 1; k <= 4; k++) {
@@ -56,6 +53,19 @@ public class WordCountTest {
             List<WordCount> counts = mapper.selectByExample(example);
             logger.info("k={}, and words={}", K, new Gson().toJson(counts));
         }
+    }
+
+    @Test
+    public void returnTest() {
+        doBefore();
+        WordCount wordCount = new WordCount();
+        wordCount.setFileUid(123);
+        wordCount.setWord("hello22");
+        wordCount.setCnt(10);
+//        int insert = mapper.insert(wordCount);
+//        System.out.println("insert = " + insert);
+        int appendCount = mapper.updateAppendCount(wordCount);
+        System.out.println("appendCount = " + appendCount);
     }
 
     @TestConfiguration
