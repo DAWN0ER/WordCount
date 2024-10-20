@@ -42,7 +42,7 @@ public class WordHashFunctionFactory {
                 return new WordHashFunction() {
                     @Override
                     public int hash(String word) {
-                        return Objects.hash(word);
+                        return Objects.hashCode(word);
                     }
                 };
         }
