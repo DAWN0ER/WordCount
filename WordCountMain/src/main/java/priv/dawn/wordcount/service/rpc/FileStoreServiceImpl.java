@@ -98,6 +98,7 @@ public class FileStoreServiceImpl implements FileStoreService {
         FileChunksDto fileChunksDto = new FileChunksDto();
         fileChunksDto.setChunks(chunkDtoList);
         fileChunksDto.setFileUid(fileUid);
+        fileChunksDto.setChunkNum(chunkDtoList.size());
         return fileChunksDto;
 
     }

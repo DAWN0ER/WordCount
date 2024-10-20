@@ -23,7 +23,7 @@ public interface FileStoreService {
      * @param fileUid 文件id 标识符
      * @param startChunk 起始区块索引 >= 1
      * @param endChunk 结束区块索引(包含 endChunk)
-     * @return FileVo chunks 只包含指定区间
+     * @return FileChunksDto chunks 只包含指定区间, 这个区间的 chunksNum
      */
     FileChunksDto getPagesByFile(Integer fileUid, int startChunk, int endChunk);
 

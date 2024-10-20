@@ -1,30 +1,11 @@
 package priv.dawn.workers.service.impl;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
-import priv.dawn.kafkamessage.message.CustomMessage;
-import priv.dawn.workers.domain.ProgressDao;
-import priv.dawn.workers.mapper.ChunkReadMapper;
-import priv.dawn.workers.mapper.WordCountMapper;
-import priv.dawn.workers.pojo.ChunkDTO;
-import priv.dawn.workers.utils.CustomMassageUtil;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
-
-@DubboService
-@Slf4j
-@Service
+@Deprecated
+//@DubboService
+//@Slf4j
+//@Service
 public class WorkerServiceImpl {
-
+/*
 
     @Qualifier(value = "WorkerReadThreadPool")
     @Resource
@@ -105,5 +86,5 @@ public class WorkerServiceImpl {
         }
     }
 
-
+// */
 }
