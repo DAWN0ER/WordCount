@@ -1,18 +1,8 @@
 package priv.dawn.workers.utils;
 
-import com.google.common.hash.Hashing;
-import com.hankcs.hanlp.tokenizer.StandardTokenizer;
-import priv.dawn.kafkamessage.message.CustomMessage;
-import priv.dawn.workers.pojo.ChunkDTO;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
+@Deprecated
 public class CustomMassageUtil {
-
+/*
     private static final TermFilter termFilter = new TermFilter();
 
     public static ArrayList<CustomMessage> generateFromChunk(ChunkDTO chunk, int partitionNum) {
@@ -50,4 +40,6 @@ public class CustomMassageUtil {
     private static int getHash(String word) {
         return (int) (Hashing.murmur3_32_fixed().hashString(word, StandardCharsets.UTF_8).padToLong());
     }
+
+ */
 }

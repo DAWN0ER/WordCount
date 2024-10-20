@@ -2,8 +2,6 @@ package priv.dawn.wordcount.domain;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * Created with IntelliJ IDEA.
  *
@@ -17,6 +15,6 @@ public class FileChunkListDto {
 
     private Integer fileUid;
     private Long taskId;
-    private List<Integer> chunkIds;
+    private Integer chunkId;
 
 }

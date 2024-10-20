@@ -1,11 +1,11 @@
 package priv.dawn.workers.mapper;
 
 import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-@Mapper
+//@Mapper
+@Deprecated
 public interface ProgressMapper {
 
     @Insert("INSERT INTO t_file_progress (file_uid, chunks_num) VALUES (#{uid},#{num});")

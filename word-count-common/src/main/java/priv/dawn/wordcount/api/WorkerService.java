@@ -2,8 +2,6 @@ package priv.dawn.wordcount.api;
 
 import priv.dawn.wordcount.domain.FileChunkListDto;
 
-import java.util.List;
-
 /**
  * Created with IntelliJ IDEA.
  *
@@ -19,7 +17,7 @@ public interface WorkerService {
      * @param fileChunkListDto 入参
      * @return 计数成功的 chunkIds
      */
-    List<Integer> countWordsOfChunk(FileChunkListDto fileChunkListDto);
+    Integer countWordsOfChunk(FileChunkListDto fileChunkListDto);
 
     /**
      * 异步完成计数

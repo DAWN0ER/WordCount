@@ -28,14 +28,21 @@ public class FileServiceWrapper {
 
     public ChunkDto getChunk(int fileUid, int chunkId) {
         if (fileUid <= 0 || chunkId <= 0) {
+            log.error("[getChunk]参数异常: fileUid:{},chunkId:{}", fileUid, chunkId);
             return null;
         }
-        FileChunksDto pagesByFile = fileStoreService.getPagesByFile(fileUid, chunkId, chunkId);
+        FileChunksDto pagesByFile = null;
+        try {
+            pagesByFile = fileStoreService.getPagesByFile(fileUid, chunkId, chunkId);
+        } catch (Exception e) {
+            log.error("[getChunk]调用异常:", e);
+            return null;
+        }
         if (Objects.isNull(pagesByFile)) {
             return null;
         }
         List<ChunkDto> chunks = pagesByFile.getChunks();
-        if(CollectionUtils.isEmpty(chunks)){
+        if (CollectionUtils.isEmpty(chunks)) {
             return null;
         }
         return chunks.get(0);

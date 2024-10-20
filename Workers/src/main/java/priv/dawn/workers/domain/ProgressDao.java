@@ -1,27 +1,14 @@
 package priv.dawn.workers.domain;
 
-import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.redisson.api.RAtomicLong;
-import org.redisson.api.RBucket;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
-import priv.dawn.kafkamessage.message.CustomMessage;
-import priv.dawn.workers.mapper.ProgressMapper;
 
-import javax.annotation.Resource;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
+@Deprecated
 @Slf4j
 @Component
 public class ProgressDao {
 
+/*
     private static final String LOCK = "WORKER_LOCK";
 
     @Resource
@@ -31,7 +18,7 @@ public class ProgressDao {
     @Autowired
     private ProgressMapper progressMapper;
 
-    // TODO: 2024/5/5 需要 redis 改为 redisson 完成分布式锁
+    // TO_DO: 2024/5/5 需要 redis 改为 redisson 完成分布式锁
     public void updateProgress(@NotNull ProducerRecord<String, String> record, int partitionNum) {
         int fileUID = Integer.parseInt(record.key());
         CustomMessage msg = CustomMessage.getFromJson(record.value());
@@ -54,7 +41,7 @@ public class ProgressDao {
         return true;
     }
 
-    // TODO: 2024/6/29 我擦，写的好烂，为什么要把每一个partition的处理进度放在 redis 里面，万一出问题直接完蛋
+    // 2024/6/29 我擦，写的好烂，为什么要把每一个partition的处理进度放在 redis 里面，万一出问题直接完蛋
     private void updateProgress(int fileUID, int chunkId, int partitionNum) {
         String key = fileUID + "&" + chunkId; // redis 作为临时计数的 key
         RAtomicLong cnt = redissonClient.getAtomicLong(key);
@@ -113,4 +100,6 @@ public class ProgressDao {
         }
 
     }
+
+// */
 }

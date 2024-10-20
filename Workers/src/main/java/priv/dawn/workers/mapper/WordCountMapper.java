@@ -1,12 +1,12 @@
 package priv.dawn.workers.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
-@Mapper
+//@Mapper
+@Deprecated
 public interface WordCountMapper {
 
     @Select("SELECT CONCAT(word,'=',cnt) as count FROM t_file_word_count WHERE file_uid=#{uid} ORDER BY cnt DESC LIMIT 100")

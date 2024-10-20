@@ -1,25 +1,12 @@
 package priv.dawn.wordcount.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import priv.dawn.mapreduceapi.api.WorkerService;
-import priv.dawn.wordcount.domain.ProgressWebSocketServer;
-import priv.dawn.wordcount.domain.WordCountStateEnum;
-import priv.dawn.wordcount.mapper.FileMapper;
-import priv.dawn.wordcount.pojo.dto.FileInfoDTO;
-import priv.dawn.wordcount.pojo.vo.WordCountListVO;
-import priv.dawn.wordcount.service.WordCountService;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 @Deprecated
 @Slf4j
 //@Service("wordCountClient")
-public class WordCountClientRPC implements WordCountService {
+public class WordCountClientRPC {
+/*
 
     private static final int CHUNKS_PRE_WORKER = 10;
 
@@ -78,4 +65,6 @@ public class WordCountClientRPC implements WordCountService {
         }
         return new WordCountListVO(fileUID,new ArrayList<>());
     }
+
+// */
 }
