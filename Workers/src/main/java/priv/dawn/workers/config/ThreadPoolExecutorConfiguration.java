@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class ThreadPoolExecutorConfiguration{
 
-    @Bean("WorkerReadThreadPool")
+    @Bean("workerReadThreadPool")
     public ThreadPoolTaskExecutor getReadExecutor() {
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
