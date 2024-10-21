@@ -1,6 +1,6 @@
 package priv.dawn.wordcount.api;
 
-import priv.dawn.wordcount.domain.FileChunkListDto;
+import priv.dawn.wordcount.domain.ChunkCountTaskDto;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,15 +14,15 @@ public interface WorkerService {
 
     /**
      * 同步计数
-     * @param fileChunkListDto 入参
+     * @param chunkCountTaskDto 入参
      * @return 计数成功的 chunkIds
      */
-    Integer countWordsOfChunk(FileChunkListDto fileChunkListDto);
+    Integer countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto);
 
     /**
      * 异步完成计数
-     * @param fileChunkListDto 入参
+     * @param chunkCountTaskDto 入参
      */
-    void countWordOfChunkAsync(FileChunkListDto fileChunkListDto);
+    void countWordOfChunkAsync(ChunkCountTaskDto chunkCountTaskDto);
 
 }

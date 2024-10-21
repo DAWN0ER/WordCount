@@ -43,6 +43,12 @@
             <artifactId>word-count-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+<!--        MQ 相关-->
+        <dependency>
+            <groupId>priv.dawn</groupId>
+            <artifactId>mq-domain</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>com.mysql</groupId>
@@ -63,7 +69,6 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -83,6 +88,10 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

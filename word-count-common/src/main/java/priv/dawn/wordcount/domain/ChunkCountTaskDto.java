@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-public class FileChunkListDto {
+public class ChunkCountTaskDto {
 
     private Integer fileUid;
     private Long taskId;
