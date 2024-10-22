@@ -1,14 +1,15 @@
-package priv.dawn.wordcount.service.rpc;
+package priv.dawn.databaseproxy.rpc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import priv.dawn.wordcount.api.FileStoreService;
-import priv.dawn.wordcount.dao.service.FileStoreDaoService;
+import priv.dawn.databaseproxy.dao.service.FileStoreDaoService;
 import priv.dawn.wordcount.domain.ChunkDto;
 import priv.dawn.wordcount.domain.FileChunksDto;
-import priv.dawn.wordcount.pojo.dto.DaoFileChunkDto;
-import priv.dawn.wordcount.pojo.dto.DaoFileInfoDto;
-import priv.dawn.wordcount.pojo.enums.FileInfoStatusEnums;
+import priv.dawn.databaseproxy.dao.dto.DaoFileChunkDto;
+import priv.dawn.databaseproxy.dao.dto.DaoFileInfoDto;
+import priv.dawn.databaseproxy.dao.enums.FileInfoStatusEnums;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  */
 
 @Slf4j
-@Deprecated
+@DubboService
 public class FileStoreServiceImpl implements FileStoreService {
 
     @Resource

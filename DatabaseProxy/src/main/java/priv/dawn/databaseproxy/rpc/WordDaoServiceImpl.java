@@ -1,14 +1,15 @@
-package priv.dawn.wordcount.service.rpc;
+package priv.dawn.databaseproxy.rpc;
 
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import priv.dawn.wordcount.api.WordDaoService;
-import priv.dawn.wordcount.dao.service.WordCountDaoService;
+import priv.dawn.databaseproxy.dao.service.WordCountDaoService;
 import priv.dawn.wordcount.domain.FileWordCountDto;
 import priv.dawn.wordcount.domain.WordCountDto;
-import priv.dawn.wordcount.pojo.dto.DaoWordCountDto;
+import priv.dawn.databaseproxy.dao.dto.DaoWordCountDto;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
  * @Since: 2024/10/12/22:50
  */
 
-@Deprecated
+@DubboService
 public class WordDaoServiceImpl implements WordDaoService {
 
     private final Logger logger = LoggerFactory.getLogger(WordDaoServiceImpl.class);
