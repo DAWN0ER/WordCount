@@ -12,7 +12,9 @@ public enum FileInfoStatusEnums {
 
     INIT(1,"文件初始化"),
     STORED(2,"文件已被储存"),
-    DAMAGED(3,"文件有分区损坏")
+    DAMAGED(3,"文件有分区损坏"),
+    IN_TASK(4,"文件正在计数任务"),
+    COUNTED(5,"文件已完成计数任务"),
     ;
 
     private final Integer status;

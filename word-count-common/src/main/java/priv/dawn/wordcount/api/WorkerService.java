@@ -17,7 +17,7 @@ public interface WorkerService {
      * @param chunkCountTaskDto 入参
      * @return 返回 map 到的 partition 数量
      */
-    Integer countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto);
+    int countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto);
 
     /**
      * 异步完成计数

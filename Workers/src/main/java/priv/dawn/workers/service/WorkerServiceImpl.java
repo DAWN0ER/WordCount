@@ -49,7 +49,7 @@ public class WorkerServiceImpl implements WorkerService {
     private RedissonClient redissonClient;
 
     @Override
-    public Integer countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto) {
+    public int countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto) {
         return countWordsOfChunkCore(chunkCountTaskDto);
     }
 
@@ -60,9 +60,10 @@ public class WorkerServiceImpl implements WorkerService {
         });
     }
 
-    private Integer countWordsOfChunkCore(ChunkCountTaskDto chunkCountTaskDto) {
+    private int countWordsOfChunkCore(ChunkCountTaskDto chunkCountTaskDto) {
         if (Objects.isNull(chunkCountTaskDto)) {
             logger.error("[countWordsOfChunkCore] 参数为 null");
+            return 0;
         }
         Integer fileUid = chunkCountTaskDto.getFileUid();
         Long taskId = chunkCountTaskDto.getTaskId();
@@ -71,6 +72,7 @@ public class WorkerServiceImpl implements WorkerService {
                 || Objects.isNull(taskId) || taskId <= 0
                 || Objects.isNull(chunkId) || chunkId <= 0) {
             logger.error("[countWordsOfChunkCore] 参数异常: fileUid:{},taskId:{},chunkId:{}", fileUid, taskId, chunkId);
+            return 0;
         }
 
         logger.info("[countWordsOfChunkCore] 参数: fileUid:{},taskId:{},chunkId:{}", fileUid, taskId, chunkId);
@@ -83,7 +85,7 @@ public class WorkerServiceImpl implements WorkerService {
         Map<String, Integer> wordCount = SegmentCounter.countWordOf(context);
         if (MapUtils.isEmpty(wordCount)) {
             logger.warn("[countWordsOfChunkCore] 对 Chunk:{} 分词计数结果为空!", chunk.getChunkId());
-            return 1;
+            return 0;
         }
         String topic = TopicEnums.WORD_COUNT.getTopic();
         int partitionNum = kafkaWrapperService.getPartitionNum(topic);

@@ -1,4 +1,4 @@
-package priv.dawn.wordcount.domain;
+package priv.dawn.wordcount.service;
 
 import lombok.extern.slf4j.Slf4j;
 

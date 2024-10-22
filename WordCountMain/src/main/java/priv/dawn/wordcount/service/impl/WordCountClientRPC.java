@@ -10,16 +10,6 @@ public class WordCountClientRPC {
 
     private static final int CHUNKS_PRE_WORKER = 10;
 
-    @Resource
-    @Qualifier("webSocketThreadPool")
-    ThreadPoolTaskExecutor webSocketExecutor;
-
-//    @DubboReference
-    WorkerService workerService;
-
-    @Autowired
-    FileMapper fileMapper;
-
     @Override
     public WordCountStateEnum startCountWord(int fileUID) {
 
