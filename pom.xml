@@ -10,11 +10,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>map-reduce-api</module>
         <module>WordCountMain</module>
         <module>Workers</module>
         <module>Reducer</module>
-        <module>kafka-massage</module>
         <module>word-count-common</module>
         <module>mq-domain</module>
     </modules>
@@ -63,13 +61,6 @@
                 <groupId>org.mybatis.generator</groupId>
                 <artifactId>mybatis-generator-core</artifactId>
                 <version>${mybatis-generator.version}</version>
-            </dependency>
-
-            <!-- Custom API 配置 -->
-            <dependency>
-                <groupId>priv.dawn</groupId>
-                <artifactId>map-reduce-api</artifactId>
-                <version>0.01</version>
             </dependency>
 
             <!-- Dubbo 配置-->

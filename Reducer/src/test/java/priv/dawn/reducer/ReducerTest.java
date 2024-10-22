@@ -1,19 +1,10 @@
 package priv.dawn.reducer;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import priv.dawn.reducer.mapper.WordCountMapper;
-import priv.dawn.reducer.repository.SaveWordCountRepository;
 
 import java.util.HashMap;
 
 public class ReducerTest extends ReducerApplicationTests {
-
-    @Autowired
-    WordCountMapper mapper;
-
-    @Autowired
-    SaveWordCountRepository wcDao;
 
     @Test
     public void mapperTest() {
