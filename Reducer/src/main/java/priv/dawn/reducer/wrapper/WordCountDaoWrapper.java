@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import priv.dawn.wordcount.api.WordDaoService;
 import priv.dawn.wordcount.domain.FileWordCountDto;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,10 +28,10 @@ public class WordCountDaoWrapper {
     @DubboReference
     private WordDaoService wordDaoService;
 
-    List<String> saveWordCount(FileWordCountDto fileWordCountDto) {
+    public List<String> saveWordCount(FileWordCountDto fileWordCountDto) {
         if (Objects.isNull(fileWordCountDto)) {
             log.error("[saveWordCount] 输入为 null");
-            return null;
+            return Collections.emptyList();
         }
         log.info("[saveWordCount] fileWordCountDto:{}", gson.toJson(fileWordCountDto));
         try {
@@ -39,7 +40,7 @@ public class WordCountDaoWrapper {
             return words;
         } catch (Exception e) {
             log.info("[saveWordCount] 调用异常:", e);
-            return null;
+            return Collections.emptyList();
         }
     }
 
