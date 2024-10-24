@@ -2,7 +2,6 @@ package priv.dawn.workers.service;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.dubbo.config.annotation.DubboService;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,7 +19,10 @@ import priv.dawn.workers.utils.hash.WordHashFunctionFactory;
 import priv.dawn.workers.wrapper.FileServiceWrapper;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,9 +46,6 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Resource
     private ThreadPoolTaskExecutor workerReadThreadPool;
-
-    @Resource
-    private RedissonClient redissonClient;
 
     @Override
     public int countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto) {
@@ -93,7 +92,6 @@ public class WorkerServiceImpl implements WorkerService {
             logger.error("[countWordsOfChunkCore] Topic:{} 获取 partition 信息失败", topic);
             return 0;
         }
-        // TODO 需要在这里同步到 Redis 里面去记录 taskId 的 BitSet 中
 
         List<WordCountMessage> messageList = initMessageList(partitionNum, taskId, fileUid, chunkId, wordCount.size());
 

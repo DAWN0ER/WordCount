@@ -10,7 +10,7 @@ spring:
   redis:
     port: 6379
     host: localhost
-    database: 11
+    database: 12
 mybatis:
   executor-type: SIMPLE # 大量处理的数据量都到千级别了
 

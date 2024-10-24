@@ -5,6 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,9 @@ public class WordCountReducerService {
 
     @Resource
     private WordCountDaoWrapper wordCountDaoWrapper;
+
+    @Resource
+    private RedissonClient reducerRedisson;
 
     @KafkaListener(groupId = "${spring.kafka.consumer.group-id}", topics = TOPIC)
     public void onMassage(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
@@ -59,7 +64,7 @@ public class WordCountReducerService {
             int chunkId = message.getChunkId();
             List<WordCountEntry> wordCounts = message.getWordCounts();
             log.info("解析到消息:taskId:{},fileUid:{},chunkId:{},topic:{}-partition:{}-offset{}",
-                    taskId,fileUid,chunkId,TOPIC,partition,record.offset());
+                    taskId, fileUid, chunkId, TOPIC, partition, record.offset());
 
             if (!insertMap.containsKey(taskId)) {
                 WordCountMap map = new WordCountMap();
@@ -69,20 +74,21 @@ public class WordCountReducerService {
                 map.setChunkIdSet(new HashSet<>(16));
                 insertMap.put(taskId, map);
             }
-            insertMap.get(taskId).merge(chunkId,wordCounts);
+            insertMap.get(taskId).merge(chunkId, wordCounts);
         }
         for (WordCountMap wordCountMap : insertMap.values()) {
             boolean success = save(wordCountMap);
-            if(!success){
+            if (!success) {
                 log.error("word-count 存储失败:taskId:{},fileUid:{},partition:{},chunkIds:{},words:{}",
-                        wordCountMap.getTaskId(),wordCountMap.getFileUid(),partition,
-                        wordCountMap.getChunkIdSet(),wordCountMap.getWordCountMap());
+                        wordCountMap.getTaskId(), wordCountMap.getFileUid(), partition,
+                        wordCountMap.getChunkIdSet(), wordCountMap.getWordCountMap());
                 continue;
             }
             log.info("word-count 存储成功:taskId:{},fileUid:{},partition:{},chunkIds:{},words:{}",
-                    wordCountMap.getTaskId(),wordCountMap.getFileUid(),partition,
-                    wordCountMap.getChunkIdSet(),wordCountMap.getWordCountMap());
-            // TODO 更新 Redis
+                    wordCountMap.getTaskId(), wordCountMap.getFileUid(), partition,
+                    wordCountMap.getChunkIdSet(), wordCountMap.getWordCountMap());
+            // 更新 Redis
+            saveRedis(wordCountMap, partition);
         }
         ack.acknowledge();
     }
@@ -106,4 +112,12 @@ public class WordCountReducerService {
         }
         return true;
     }
+
+    private void saveRedis(WordCountMap wordCountMap, int partition) {
+        String redisKey = "word_count_%d_p%d";
+        RBitSet bitSet = reducerRedisson.getBitSet(String.format(redisKey, wordCountMap.getTaskId(), partition));
+        wordCountMap.getChunkIdSet().forEach(bitSet::set);
+    }
+
+
 }
