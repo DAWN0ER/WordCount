@@ -27,7 +27,8 @@ public class WordHashFunctionFactory {
                     @Override
                     public int hash(String word) {
                         if (Objects.isNull(word)) return 0;
-                        return murmur32.hashString(word, StandardCharsets.UTF_8).asInt();
+                        int hash = murmur32.hashString(word, StandardCharsets.UTF_8).asInt();
+                        return hash < 0 ? -hash : hash;
                     }
                 };
             case FarmHash:
@@ -35,7 +36,8 @@ public class WordHashFunctionFactory {
                     @Override
                     public int hash(String word) {
                         if (Objects.isNull(word)) return 0;
-                        return farmHash.hashString(word, StandardCharsets.UTF_8).asInt();
+                        int hash = farmHash.hashString(word, StandardCharsets.UTF_8).asInt();
+                        return hash < 0 ? -hash : hash;
                     }
                 };
             default:

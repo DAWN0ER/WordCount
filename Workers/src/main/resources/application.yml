@@ -22,3 +22,4 @@ dubbo:
   protocol:
     name: dubbo
     port: 33302
+    serialization: gson

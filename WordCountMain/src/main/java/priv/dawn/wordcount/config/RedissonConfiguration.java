@@ -5,6 +5,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Bean;
  * @Since: 2024/10/24/21:02
  */
 
+@Configuration
 public class RedissonConfiguration {
 
     @Value("${spring.redis.host}")

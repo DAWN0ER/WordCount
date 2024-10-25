@@ -5,7 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.redisson.api.RBitSet;
+import org.redisson.api.RList;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -19,6 +20,7 @@ import priv.dawn.wordcount.domain.WordCountDto;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -37,6 +39,7 @@ public class WordCountReducerService {
     @KafkaListener(groupId = "${spring.kafka.consumer.group-id}", topics = TOPIC)
     public void onMassage(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
         // 处理消息
+        log.info("[onMassage] topic:{}, 接收到消息", TOPIC);
         Map<Long, WordCountMap> insertMap = new HashMap<>();
         int partition = records.get(0).partition(); // 一个 Batch 都是来自同一个 Partition 的
 
@@ -87,8 +90,8 @@ public class WordCountReducerService {
             log.info("word-count 存储成功:taskId:{},fileUid:{},partition:{},chunkIds:{},words:{}",
                     wordCountMap.getTaskId(), wordCountMap.getFileUid(), partition,
                     wordCountMap.getChunkIdSet(), wordCountMap.getWordCountMap());
-            // 更新 Redis
-            saveRedis(wordCountMap, partition);
+            // TODO 更新 Redis 有大问题，重新想方案
+//            saveRedis(wordCountMap, partition);
         }
         ack.acknowledge();
     }
@@ -114,9 +117,32 @@ public class WordCountReducerService {
     }
 
     private void saveRedis(WordCountMap wordCountMap, int partition) {
-        String redisKey = "word_count_%d_p%d";
-        RBitSet bitSet = reducerRedisson.getBitSet(String.format(redisKey, wordCountMap.getTaskId(), partition));
-        wordCountMap.getChunkIdSet().forEach(bitSet::set);
+        String chunkLock = "word_count_chunk_%d";
+        long taskId = wordCountMap.getTaskId();
+        RList<Long> list = reducerRedisson.getList(String.format("word_count_chunks_%d", taskId));
+        for (Integer chunkId : wordCountMap.getChunkIdSet()) {
+            RLock lock = reducerRedisson.getLock(String.format(chunkLock, chunkId));
+            boolean success = false;
+            try {
+                success = lock.tryLock(15, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                log.error("上锁线程中断: taskId:{}, chunkId:{}", taskId, chunkId);
+                continue;
+            }
+            if (!success) {
+                log.error("上锁失败: taskId:{}, chunkId:{}", taskId, chunkId);
+                continue;
+            }
+            try {
+                int idx = chunkId - 1;
+                Long bitSet = list.get(idx);
+
+                bitSet -= 1L << partition;
+                list.set(idx, bitSet);
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
 

@@ -58,7 +58,7 @@ public class WordDaoServiceImpl implements WordDaoService {
             return daoWordCountDto;
         }).collect(Collectors.toList());
         List<String> success = wordCountDaoService.saveWordCounts(fileUid, collect);
-        logger.info("[saveWordCount] 更新数量对比: 期望更新:{},实际更新:{}",collect.size(),success.size());
+        logger.info("[saveWordCount]fileUid:{} 更新数量对比: 期望更新:{},实际更新:{}",fileUid,collect.size(),success.size());
         return success;
     }
 

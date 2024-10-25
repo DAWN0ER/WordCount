@@ -1,5 +1,7 @@
 package priv.dawn.wordcount.pojo.vo;
 
+import lombok.Data;
+
 /**
  * Created with IntelliJ IDEA.
  *
@@ -7,6 +9,8 @@ package priv.dawn.wordcount.pojo.vo;
  * @Auther: Dawn Yang
  * @Since: 2024/10/14/18:22
  */
+
+@Data
 public class FileWordCountTaskVo {
 
     private Integer fileUid;

@@ -1,7 +1,11 @@
 package priv.dawn.workers.service;
 
+import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.redisson.api.RList;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -19,10 +23,8 @@ import priv.dawn.workers.utils.hash.WordHashFunctionFactory;
 import priv.dawn.workers.wrapper.FileServiceWrapper;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,6 +38,8 @@ public class WorkerServiceImpl implements WorkerService {
 
     private final Logger logger = LoggerFactory.getLogger(WorkerServiceImpl.class);
 
+    private final Gson gson = new Gson();
+
     private final WordHashFunction murmurHash = WordHashFunctionFactory.getHashFunc(HashEnum.Murmur3);
 
     @Resource
@@ -46,6 +50,9 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Resource
     private ThreadPoolTaskExecutor workerReadThreadPool;
+
+    @Resource
+    private RedissonClient workerRedisson;
 
     @Override
     public int countWordsOfChunk(ChunkCountTaskDto chunkCountTaskDto) {
@@ -82,6 +89,7 @@ public class WorkerServiceImpl implements WorkerService {
         }
         String context = chunk.getContext();
         Map<String, Integer> wordCount = SegmentCounter.countWordOf(context);
+        logger.info("[countWordsOfChunkCore] 对 Chunk:{} 分词计数结果大小:{}",chunk.getChunkId(),wordCount.size());
         if (MapUtils.isEmpty(wordCount)) {
             logger.warn("[countWordsOfChunkCore] 对 Chunk:{} 分词计数结果为空!", chunk.getChunkId());
             return 0;
@@ -92,19 +100,27 @@ public class WorkerServiceImpl implements WorkerService {
             logger.error("[countWordsOfChunkCore] Topic:{} 获取 partition 信息失败", topic);
             return 0;
         }
+        logger.info("[countWordsOfChunkCore]taskId:{} ChunkId:{} 对应 PartitionNum:{}",taskId,chunkId,partitionNum);
+
+        // Redis 更新对应 chunkId 的 partition 数量
+        // TODO Redisson 怎么会导致线程等待啊,离谱
+        saveRedis(taskId,chunkId,partitionNum);
 
         List<WordCountMessage> messageList = initMessageList(partitionNum, taskId, fileUid, chunkId, wordCount.size());
+        logger.info("[initMessageList] 结果:{}",gson.toJson(messageList));
 
         // 换一个 Hash 算法 Map 到不同的 Partition 去
-        for (Map.Entry<String, Integer> entry : wordCount.entrySet()) {
-            String word = entry.getKey();
-            Integer count = entry.getValue();
+        Set<String> words = wordCount.keySet();
+        for (String word : words) {
+            Integer count = wordCount.get(word);
             int partition = murmurHash.hash(word) % partitionNum;
+            logger.info("[Hash]:word:{},count:{},partition:{}",word,count,partition);
             WordCountEntry wordCountEntry = new WordCountEntry();
             wordCountEntry.setWord(word);
             wordCountEntry.setCount(count);
             messageList.get(partition).getWordCounts().add(wordCountEntry);
         }
+        logger.info("[countWordsOfChunkCore] 构造消息成功:{}",gson.toJson(messageList));
         for (int partition = 0; partition < partitionNum; partition++) {
             kafkaWrapperService.send(topic, messageList.get(partition), partition);
         }
@@ -122,5 +138,31 @@ public class WorkerServiceImpl implements WorkerService {
             list.add(message);
         }
         return list;
+    }
+
+    private void saveRedis(long taskId, int chunkId, int partitionNum) {
+        String chunkLock = "word_count_chunk_%d";
+        RList<Long> list = workerRedisson.getList(String.format("word_count_chunks_%d", taskId));
+        RLock lock = workerRedisson.getLock(String.format(chunkLock, chunkId));
+        logger.info("[countWordsOfChunkCore]记录初始化: taskId:{}, chunkId:{}",taskId,chunkId);
+        boolean success = false;
+        try {
+            logger.info("尝试上锁:{}",lock.getName());
+            success = lock.tryLock(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.error("上锁线程中断: taskId:{}, chunkId:{}", taskId, chunkId);
+            return;
+        }
+        if (!success) {
+            logger.error("上锁失败: taskId:{}, chunkId:{}", taskId, chunkId);
+            return;
+        }
+        try {
+            int idx = chunkId - 1;
+            list.fastSet(idx, (1L << partitionNum) - 1);
+        } finally {
+            lock.unlock();
+        }
+        logger.info("[countWordsOfChunkCore]完成记录初始化: taskId:{}, chunkId:{}",taskId,chunkId);
     }
 }

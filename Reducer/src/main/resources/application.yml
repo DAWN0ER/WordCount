@@ -1,5 +1,5 @@
 server:
-  port: 23501
+  port: 23901
 spring:
   application:
     name: reducer-service
@@ -26,4 +26,5 @@ dubbo:
     group: wordcount
   protocol:
     name: dubbo
-    port: 33303
+    port: 22333
+    serialization: gson
