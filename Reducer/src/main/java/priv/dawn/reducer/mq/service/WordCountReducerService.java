@@ -40,7 +40,6 @@ public class WordCountReducerService {
         // 处理消息
         log.info("[onMassage] topic:{}, 接收到消息", TOPIC);
         Map<Long, WordCountMap> insertMap = new HashMap<>();
-
         for (ConsumerRecord<String, String> record : records) {
             // 解析消息
             WordCountMessage message;
@@ -62,8 +61,8 @@ public class WordCountReducerService {
             long taskId = message.getTaskId();
             int fileUid = message.getFileUid();
             int chunkId = message.getChunkId();
-            // TODO 一个批量的可能来自不同 partition 需要重新整理
             int partition = record.partition();
+
             List<WordCountEntry> wordCounts = message.getWordCounts();
             log.info("解析到消息:taskId:{},fileUid:{},chunkId:{},topic:{}-partition:{}-offset{}",
                     taskId, fileUid, chunkId, TOPIC, partition, record.offset());
@@ -73,27 +72,30 @@ public class WordCountReducerService {
                 map.setFileUid(fileUid);
                 map.setTaskId(taskId);
                 map.setWordCountMap(new HashMap<>(256));
-                map.setChunkIdSet(new HashSet<>(16));
+                map.setChunkPartition(new ArrayList<>(records.size()));
                 insertMap.put(taskId, map);
             }
-            insertMap.get(taskId).merge(chunkId, wordCounts);
+            insertMap.get(taskId).merge(chunkId, partition, wordCounts);
         }
+
+
         for (WordCountMap wordCountMap : insertMap.values()) {
-            boolean success = save(wordCountMap);
+            boolean success = updateWordCount(wordCountMap);
             if (!success) {
-                log.error("word-count 存储失败:taskId:{},fileUid:{},partition:{},chunkIds:{},words:{}",
-                        wordCountMap.getTaskId(), wordCountMap.getFileUid(), "partition", // TODO
-                        wordCountMap.getChunkIdSet(), wordCountMap.getWordCountMap());
+                log.error("word-count 存储失败:taskId:{},fileUid:{},chunk-partition:{},words:{}",
+                        wordCountMap.getTaskId(), wordCountMap.getFileUid(),
+                        gson.toJson(wordCountMap.getChunkPartition()), wordCountMap.getWordCountMap());
                 continue;
             }
-            log.info("word-count 存储成功:taskId:{},fileUid:{},partition:{},chunkIds:{},words:{}",
-                    wordCountMap.getTaskId(), wordCountMap.getFileUid(), "partition", // TODO
-                    wordCountMap.getChunkIdSet(), wordCountMap.getWordCountMap());
-            saveRedis(wordCountMap, 0/* TODO partition*/ );
+            log.info("word-count 存储成功:taskId:{},fileUid:{},chunk-partition:{},words:{}",
+                    wordCountMap.getTaskId(), wordCountMap.getFileUid(),
+                    gson.toJson(wordCountMap.getChunkPartition()), wordCountMap.getWordCountMap());
+
+            updateRedis(wordCountMap);
         }
     }
 
-    private boolean save(WordCountMap wordCountMap) {
+    private boolean updateWordCount(WordCountMap wordCountMap) {
         FileWordCountDto fileWordCountDto = new FileWordCountDto();
         fileWordCountDto.setFileUid(wordCountMap.getFileUid());
         HashMap<String, Integer> wordCounts = wordCountMap.getWordCountMap();
@@ -105,6 +107,7 @@ public class WordCountReducerService {
             wordCountDtoList.add(dto);
         });
         fileWordCountDto.setWordCounts(wordCountDtoList);
+
         List<String> list = wordCountDaoWrapper.saveWordCount(fileWordCountDto);
         if (list.size() < wordCountDtoList.size()) {
             log.error("[wordCountDaoWrapper.saveWordCount] 调用失败");
@@ -113,13 +116,16 @@ public class WordCountReducerService {
         return true;
     }
 
-    private void saveRedis(WordCountMap wordCountMap, int partition) {
+    private void updateRedis(WordCountMap wordCountMap) {
         long taskId = wordCountMap.getTaskId();
         RList<Long> list = reducerRedisson.getList(String.format("word_count_chunks_%d", taskId));
         RLock lock = reducerRedisson.getLock(String.format("word_count_lock_%d", taskId));
+
         try {
             lock.lock(15, TimeUnit.SECONDS);
-            for (Integer chunkId : wordCountMap.getChunkIdSet()) {
+            for (int[] chunkPartition : wordCountMap.getChunkPartition()) {
+                int chunkId = chunkPartition[0];
+                int partition = chunkPartition[1];
                 long bitSet = Optional.ofNullable(list.get(chunkId - 1)).orElse(0L);
                 bitSet -= 1L << partition;
                 list.set(chunkId - 1, bitSet);

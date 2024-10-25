@@ -37,14 +37,9 @@ public class WordCountController {
         }
         double progress = 0.0;
         int max = 100;
-        while (progress < 99.9 && progress >= 0.0 && max > 0) {
+        while (progress < 0.99 && progress >= 0.0 && max > 0) {
             progress = wordCountClientService.getProgress(taskId);
             log.info("task:{} 进度:{}", taskId, progress);
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             max--;
         }
         FileWordCountTaskVo vo = new FileWordCountTaskVo();

@@ -72,9 +72,11 @@ public class FileStoreServiceImpl implements FileStoreService {
     @Override
     public FileChunksDto getPagesByFile(Integer fileUid, int startChunk, int endChunk) {
         if (Objects.isNull(fileUid) || fileUid <= 0) {
+            log.error("[getPagesByFile] 错误参数: fileUid:{}",fileUid);
             return null;
         }
-        if (startChunk <= 1 || endChunk <= 0 || endChunk < startChunk) {
+        if (startChunk < 1 || endChunk < 1 || endChunk < startChunk) {
+            log.error("[getPagesByFile] 错误参数: startChunk:{}, endChunk:{}",startChunk,endChunk);
             return null;
         }
 

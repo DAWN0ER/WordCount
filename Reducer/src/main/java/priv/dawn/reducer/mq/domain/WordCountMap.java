@@ -5,7 +5,6 @@ import priv.dawn.mq.domain.WordCountEntry;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,15 +18,15 @@ public class WordCountMap {
 
     private long taskId;
     private int fileUid;
-    private Set<Integer> chunkIdSet;
+    private List<int[]> chunkPartition;
     private HashMap<String, Integer> wordCountMap;
 
     public void merge(String word, int count) {
         wordCountMap.merge(word, count, Integer::sum);
     }
 
-    public void merge(int chunkId, List<WordCountEntry> wordCountEntryList) {
-        chunkIdSet.add(chunkId);
+    public void merge(int chunkId, int partition, List<WordCountEntry> wordCountEntryList) {
+        chunkPartition.add(new int[]{chunkId, partition});
         for (WordCountEntry entry : wordCountEntryList) {
             this.merge(entry.getWord(), entry.getCount());
         }
