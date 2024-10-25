@@ -89,7 +89,7 @@ public class WorkerServiceImpl implements WorkerService {
         }
         String context = chunk.getContext();
         Map<String, Integer> wordCount = SegmentCounter.countWordOf(context);
-        logger.info("[countWordsOfChunkCore] 对 Chunk:{} 分词计数结果大小:{}",chunk.getChunkId(),wordCount.size());
+        logger.info("[countWordsOfChunkCore] 对 Chunk:{} 分词计数结果大小:{}", chunk.getChunkId(), wordCount.size());
         if (MapUtils.isEmpty(wordCount)) {
             logger.warn("[countWordsOfChunkCore] 对 Chunk:{} 分词计数结果为空!", chunk.getChunkId());
             return 0;
@@ -100,27 +100,26 @@ public class WorkerServiceImpl implements WorkerService {
             logger.error("[countWordsOfChunkCore] Topic:{} 获取 partition 信息失败", topic);
             return 0;
         }
-        logger.info("[countWordsOfChunkCore]taskId:{} ChunkId:{} 对应 PartitionNum:{}",taskId,chunkId,partitionNum);
+        logger.info("[countWordsOfChunkCore]taskId:{} ChunkId:{} 对应 PartitionNum:{}", taskId, chunkId, partitionNum);
 
         // Redis 更新对应 chunkId 的 partition 数量
         // TODO Redisson 怎么会导致线程等待啊,离谱
-        saveRedis(taskId,chunkId,partitionNum);
+        saveRedis(taskId, chunkId, partitionNum);
 
         List<WordCountMessage> messageList = initMessageList(partitionNum, taskId, fileUid, chunkId, wordCount.size());
-        logger.info("[initMessageList] 结果:{}",gson.toJson(messageList));
+        logger.info("[initMessageList] 结果:{}", gson.toJson(messageList));
 
         // 换一个 Hash 算法 Map 到不同的 Partition 去
         Set<String> words = wordCount.keySet();
         for (String word : words) {
             Integer count = wordCount.get(word);
             int partition = murmurHash.hash(word) % partitionNum;
-            logger.info("[Hash]:word:{},count:{},partition:{}",word,count,partition);
             WordCountEntry wordCountEntry = new WordCountEntry();
             wordCountEntry.setWord(word);
             wordCountEntry.setCount(count);
             messageList.get(partition).getWordCounts().add(wordCountEntry);
         }
-        logger.info("[countWordsOfChunkCore] 构造消息成功:{}",gson.toJson(messageList));
+        logger.info("[countWordsOfChunkCore] 构造消息成功:{}", gson.toJson(messageList));
         for (int partition = 0; partition < partitionNum; partition++) {
             kafkaWrapperService.send(topic, messageList.get(partition), partition);
         }
@@ -141,28 +140,18 @@ public class WorkerServiceImpl implements WorkerService {
     }
 
     private void saveRedis(long taskId, int chunkId, int partitionNum) {
-        String chunkLock = "word_count_chunk_%d";
         RList<Long> list = workerRedisson.getList(String.format("word_count_chunks_%d", taskId));
-        RLock lock = workerRedisson.getLock(String.format(chunkLock, chunkId));
-        logger.info("[countWordsOfChunkCore]记录初始化: taskId:{}, chunkId:{}",taskId,chunkId);
-        boolean success = false;
+        RLock lock = workerRedisson.getLock(String.format("word_count_lock_%d", taskId));
         try {
-            logger.info("尝试上锁:{}",lock.getName());
-            success = lock.tryLock(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.error("上锁线程中断: taskId:{}, chunkId:{}", taskId, chunkId);
-            return;
-        }
-        if (!success) {
-            logger.error("上锁失败: taskId:{}, chunkId:{}", taskId, chunkId);
-            return;
-        }
-        try {
-            int idx = chunkId - 1;
-            list.fastSet(idx, (1L << partitionNum) - 1);
+            lock.lock(10, TimeUnit.SECONDS);
+            long bitSet = (1L << partitionNum) - 1;
+            list.set(chunkId - 1, bitSet);
+            logger.info("[Redis] taskId:{}, chunk:{} bitSet:{}",taskId,chunkId,Long.toBinaryString(bitSet));
+        } catch (Exception e) {
+            logger.error("Redis Exception of taskId:{}",taskId,e);
         } finally {
             lock.unlock();
         }
-        logger.info("[countWordsOfChunkCore]完成记录初始化: taskId:{}, chunkId:{}",taskId,chunkId);
+        logger.info("[countWordsOfChunkCore]完成 Redis 更新: taskId:{}, chunkId:{}", taskId, chunkId);
     }
 }

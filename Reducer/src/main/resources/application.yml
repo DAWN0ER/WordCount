@@ -16,7 +16,7 @@ spring:
       max-poll-records: 20
     listener:
       type: BATCH
-      ack-mode: manual
+      ack-mode: BATCH
       concurrency: 4
 dubbo:
   application:

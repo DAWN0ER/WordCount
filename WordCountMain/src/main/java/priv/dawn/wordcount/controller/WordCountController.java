@@ -41,7 +41,7 @@ public class WordCountController {
             progress = wordCountClientService.getProgress(taskId);
             log.info("task:{} 进度:{}", taskId, progress);
             try {
-                Thread.sleep(500);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

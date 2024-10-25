@@ -1,7 +1,10 @@
 package priv.dawn.wordcount.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.redisson.api.RBucket;
+import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import priv.dawn.wordcount.api.WorkerService;
@@ -12,6 +15,7 @@ import priv.dawn.wordcount.pojo.enums.FileInfoStatusEnums;
 import priv.dawn.wordcount.utils.MistUidGenerator;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -57,8 +61,13 @@ public class WordCountClientService {
         log.info("开始 WordCount 任务:taskId;{},fileUid:{}", taskId, fileUid);
 
         // TODO 任务持久化以后做，暂时先用 Redis
-//        RBucket<Integer> bucket = wordCountRedisson.getBucket(String.format("word_count_task_%d", taskId));
-//        bucket.set(chunkNum);
+        RBucket<Integer> bucket = wordCountRedisson.getBucket(String.format("word_count_task_%d", taskId));
+        bucket.set(chunkNum);
+        RList<Long> list = wordCountRedisson.getList(String.format("word_count_chunks_%d", taskId));
+        for (int i = 0; i < chunkNum; i++) {
+            list.add(0L);
+        }
+        log.info("初始化 Redis 列表长度:{}",list.size());
 
         ChunkCountTaskDto param = new ChunkCountTaskDto();
         param.setFileUid(fileUid);
@@ -71,34 +80,33 @@ public class WordCountClientService {
     }
 
     public double getProgress(long taskId) {
-//        if (taskId <= 0) {
-//            log.error("参数异常:taskId:{}", taskId);
-//            return -1;
-//        }
-//        RBucket<Integer> bucket = wordCountRedisson.getBucket(String.format("word_count_task_%d", taskId));
-//        if (!bucket.isExists()) {
-//            log.error("任务过期或启动失败:taskId:{}", taskId);
-//            return -1;
-//        }
-//        Integer chunkNum = bucket.get();
-//        RList<Long> list = wordCountRedisson.getList(String.format("word_count_chunks_%d", taskId));
-//        int[] keys = new int[chunkNum];
-//        for (int i = 0; i < chunkNum; i++) {
-//            keys[i] = i;
-//        }
-//        List<Long> progress = list.get(keys);
-//        if (CollectionUtils.isEmpty(progress)) {
-//            log.error("没有搜索到进度:taskId:{}", taskId);
-//            return 0.0;
-//        }
-//        double count = 0.0;
-//        for (Long aLong : progress) {
-//            if (Objects.nonNull(aLong) && aLong == 0) {
-//                count += 1;
-//            }
-//        }
-//        return count / chunkNum;
-        return 100.0;
+        if (taskId <= 0) {
+            log.error("参数异常:taskId:{}", taskId);
+            return -1;
+        }
+        RBucket<Integer> bucket = wordCountRedisson.getBucket(String.format("word_count_task_%d", taskId));
+        if (!bucket.isExists()) {
+            log.error("任务过期或启动失败:taskId:{}", taskId);
+            return -1;
+        }
+        Integer chunkNum = bucket.get();
+        RList<Long> list = wordCountRedisson.getList(String.format("word_count_chunks_%d", taskId));
+        int[] keys = new int[chunkNum];
+        for (int i = 0; i < chunkNum; i++) {
+            keys[i] = i;
+        }
+        List<Long> progress = list.get(keys);
+        if (CollectionUtils.isEmpty(progress)) {
+            log.error("没有搜索到进度:taskId:{}", taskId);
+            return 0.0;
+        }
+        double count = 0.0;
+        for (Long aLong : progress) {
+            if (Objects.nonNull(aLong) && aLong == 0) {
+                count += 1;
+            }
+        }
+        return count / chunkNum;
     }
 
 }
