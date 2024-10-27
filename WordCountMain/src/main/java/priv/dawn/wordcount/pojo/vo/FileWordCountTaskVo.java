@@ -17,5 +17,6 @@ public class FileWordCountTaskVo {
     private Long taskId;
     private String fileName;
     private Integer status;
+    private Double progress;
 
 }
