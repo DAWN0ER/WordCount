@@ -156,7 +156,7 @@
 
             注意，table里面很多参数都是对javaModelGenerator，context等元素的默认属性的一个复写；
          -->
-        <table tableName="file_info"
+        <table tableName="word_count_task"
                enableUpdateByPrimaryKey = "false"
                enableDeleteByPrimaryKey = "false"
                enableSelectByPrimaryKey = "false"
