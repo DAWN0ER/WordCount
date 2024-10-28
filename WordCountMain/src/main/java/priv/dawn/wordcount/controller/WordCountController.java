@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/v2/api/word-count")
+@RequestMapping("/api/v2/word-count")
 public class WordCountController {
 
     @Resource

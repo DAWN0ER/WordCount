@@ -16,7 +16,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
-@RequestMapping("/v2/api/file")
+@RequestMapping("/api/v2/file")
 public class FileController {
 
     @Resource
