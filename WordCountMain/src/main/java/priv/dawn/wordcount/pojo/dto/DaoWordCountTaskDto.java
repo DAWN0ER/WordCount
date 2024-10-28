@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-public class WordCountTaskDto {
+public class DaoWordCountTaskDto {
 
     private Long taskId;
 

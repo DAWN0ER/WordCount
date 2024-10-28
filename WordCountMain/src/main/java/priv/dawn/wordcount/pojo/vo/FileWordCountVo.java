@@ -1,6 +1,6 @@
 package priv.dawn.wordcount.pojo.vo;
 
-import priv.dawn.wordcount.domain.WordCountDto;
+import lombok.Data;
 
 import java.util.List;
 
@@ -11,9 +11,10 @@ import java.util.List;
  * @Auther: Dawn Yang
  * @Since: 2024/10/14/18:21
  */
+@Data
 public class FileWordCountVo {
 
     private Integer fileUid;
-    private List<WordCountDto> wordCounts;
+    private List<WordCountVo> wordCounts;
 
 }

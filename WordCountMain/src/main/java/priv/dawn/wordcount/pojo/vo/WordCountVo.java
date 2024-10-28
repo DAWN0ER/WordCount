@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class WordCountVo {
 
-    private Integer chunkId;
-    private String context;
+    private String word;
+    private Integer count;
 
 }

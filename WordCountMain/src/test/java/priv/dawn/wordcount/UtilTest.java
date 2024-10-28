@@ -4,6 +4,7 @@ import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import org.junit.jupiter.api.Test;
+import priv.dawn.wordcount.pojo.enums.WordCountTaskStatusEnums;
 
 import java.util.List;
 
@@ -56,5 +57,10 @@ public class UtilTest {
 //        List<Term> segment = StandardTokenizer.segment(context.substring(fromIndex));
 //        int end = segment.get(1).offset + fromIndex;
 
+    }
+
+    @Test
+    public void strTest() {
+        System.out.println("WordCountTaskStatusEnums.NEW = " + WordCountTaskStatusEnums.NEW);
     }
 }

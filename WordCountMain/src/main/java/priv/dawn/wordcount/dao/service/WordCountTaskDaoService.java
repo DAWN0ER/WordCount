@@ -7,10 +7,11 @@ import org.springframework.stereotype.Service;
 import priv.dawn.wordcount.dao.domain.WordCountTask;
 import priv.dawn.wordcount.dao.domain.WordCountTaskExample;
 import priv.dawn.wordcount.dao.mapper.primary.WordCountTaskMapper;
-import priv.dawn.wordcount.pojo.dto.WordCountTaskDto;
+import priv.dawn.wordcount.pojo.dto.DaoWordCountTaskDto;
 import priv.dawn.wordcount.pojo.enums.WordCountTaskStatusEnums;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class WordCountTaskDaoService {
     @Resource
     private WordCountTaskMapper wordCountTaskMapper;
 
-    public List<WordCountTaskDto> queryTasksOfFile(int fileUid) {
+    public List<DaoWordCountTaskDto> queryTasksOfFile(int fileUid) {
         if (fileUid <= 0) {
             log.error("[queryTasksOfFile] fileUid校验失败:{}", fileUid);
             return null;
@@ -48,7 +49,7 @@ public class WordCountTaskDaoService {
         }
     }
 
-    public WordCountTaskDto getByTaskId(long taskId) {
+    public DaoWordCountTaskDto getByTaskId(long taskId) {
         if (taskId <= 0) {
             log.error("[getByTaskId] taskId校验失败:taskId={}", taskId);
             return null;
@@ -70,7 +71,7 @@ public class WordCountTaskDaoService {
 
     }
 
-    public boolean saveTaskRecord(WordCountTaskDto recordDto) {
+    public boolean saveTaskRecord(DaoWordCountTaskDto recordDto) {
         if (!judgeValid(recordDto)) {
             log.error("[saveTaskRecord]基础字段校验失败:{}", gson.toJson(recordDto));
             return false;
@@ -113,7 +114,35 @@ public class WordCountTaskDaoService {
         return true;
     }
 
-    private boolean judgeValid(WordCountTaskDto recordDto) {
+    public List<DaoWordCountTaskDto> getByFileUid(int fileUid) {
+        return getByFileUid(fileUid, null);
+    }
+
+    public List<DaoWordCountTaskDto> getByFileUid(int fileUid, WordCountTaskStatusEnums statusEnums) {
+        if (fileUid <= 0) {
+            log.error("[getByFileUid] 参数异常: fileUid:{}", fileUid);
+            return null;
+        }
+        WordCountTaskExample example = new WordCountTaskExample();
+        WordCountTaskExample.Criteria criteria = example.createCriteria();
+        criteria.andFileUidEqualTo(fileUid);
+        if (Objects.nonNull(statusEnums)) {
+            criteria.andStatusEqualTo(statusEnums.getStatus());
+        }
+        List<WordCountTask> taskList = null;
+        try {
+            taskList = wordCountTaskMapper.selectByExample(example);
+        } catch (Exception e) {
+            log.error("[getByFileUid] 查询异常:", e);
+        }
+        if (CollectionUtils.isEmpty(taskList)) {
+            log.warn("[getByFileUid] 查询结果为空, fileUid:{}, statusEnums:{}",fileUid,statusEnums);
+            return Collections.emptyList();
+        }
+        return taskList.stream().map(this::record2dto).collect(Collectors.toList());
+    }
+
+    private boolean judgeValid(DaoWordCountTaskDto recordDto) {
         if (Objects.isNull(recordDto)) {
             return false;
         }
@@ -132,8 +161,8 @@ public class WordCountTaskDaoService {
         return true;
     }
 
-    private WordCountTaskDto record2dto(WordCountTask record) {
-        WordCountTaskDto dto = new WordCountTaskDto();
+    private DaoWordCountTaskDto record2dto(WordCountTask record) {
+        DaoWordCountTaskDto dto = new DaoWordCountTaskDto();
         dto.setTaskId(record.getTaskId());
         dto.setFileUid(record.getFileUid());
         dto.setStatus(record.getStatus());
