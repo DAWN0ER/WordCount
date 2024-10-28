@@ -9,9 +9,12 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import priv.dawn.wordcount.api.WorkerService;
 import priv.dawn.wordcount.dao.service.FileStoreDaoService;
+import priv.dawn.wordcount.dao.service.WordCountTaskDaoService;
 import priv.dawn.wordcount.domain.ChunkCountTaskDto;
 import priv.dawn.wordcount.pojo.dto.DaoFileInfoDto;
+import priv.dawn.wordcount.pojo.dto.DaoWordCountTaskDto;
 import priv.dawn.wordcount.pojo.enums.FileInfoStatusEnums;
+import priv.dawn.wordcount.pojo.enums.WordCountTaskStatusEnums;
 import priv.dawn.wordcount.utils.MistUidGenerator;
 
 import javax.annotation.Resource;
@@ -40,6 +43,9 @@ public class WordCountClientService {
     @Resource
     private RedissonClient wordCountRedisson;
 
+    @Resource
+    private WordCountTaskDaoService wordCountTaskDaoService;
+
     public long startWordCountOfFile(int fileUid) {
         DaoFileInfoDto fileInfo = fileStoreDaoService.getFileInfo(fileUid);
         if (Objects.isNull(fileInfo)) {
@@ -60,7 +66,12 @@ public class WordCountClientService {
         long taskId = MistUidGenerator.getInstance().getUid();
         log.info("开始 WordCount 任务:taskId;{},fileUid:{}", taskId, fileUid);
 
-        // TODO 任务持久化以后做，暂时先用 Redis
+        DaoWordCountTaskDto recordDto = new DaoWordCountTaskDto();
+        recordDto.setFileUid(fileUid);
+        recordDto.setTaskId(taskId);
+        recordDto.setStatus(WordCountTaskStatusEnums.NEW.getStatus());
+        wordCountTaskDaoService.saveTaskRecord(recordDto);
+
         RBucket<Integer> bucket = wordCountRedisson.getBucket(String.format("word_count_task_%d", taskId));
         bucket.set(chunkNum);
         RList<Long> list = wordCountRedisson.getList(String.format("word_count_chunks_%d", taskId));

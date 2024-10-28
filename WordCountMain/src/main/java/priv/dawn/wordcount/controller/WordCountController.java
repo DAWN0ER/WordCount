@@ -49,16 +49,19 @@ public class WordCountController {
         if (Objects.isNull(fileInfo) || !FileInfoStatusEnums.STORED.getStatus().equals(fileInfo.getStatus())) {
             log.warn("[startCountWord] 文件未找到或已经损坏, fileInfo:{}", gson.toJson(fileInfo));
             response.sendError(404, "文件不存在或不完整");
+            return null;
         }
         List<DaoWordCountTaskDto> taskListOfFile = wordCountTaskDaoService.getByFileUid(fileUid);
         if (CollectionUtils.isNotEmpty(taskListOfFile)) {
             log.info("");
             response.sendError(405, "文件已有计数任务");
+            return null;
         }
         long taskId = wordCountClientService.startWordCountOfFile(fileUid);
         if (taskId <= 0) {
             log.error("task 启动失败, fileUid:{}", fileUid);
             response.sendError(500, "任务启动失败");
+            return null;
         }
         FileWordCountTaskVo vo = new FileWordCountTaskVo();
         vo.setFileUid(fileUid);
@@ -76,14 +79,17 @@ public class WordCountController {
     ) throws IOException {
         if (fileUid <= 0 || K <= 0 || K > 100) {
             response.sendError(400, "非法参数");
+            return null;
         }
         if (!judgeTaskIsValidOfFile(fileUid)) {
             response.sendError(404, "文件不存在或不完整，或无计数任务结果");
+            return null;
         }
         List<DaoWordCountDto> dtoList = wordCountDaoService.queryTopKWords(fileUid, K);
         if (CollectionUtils.isEmpty(dtoList)) {
             log.error("[getTopKWordCount] 未找到计数结果, fileUid:{}", fileUid);
             response.sendError(500, "文件计数出现异常");
+            return null;
         }
         List<WordCountVo> wordCountVoList = dtoList.stream()
                 .map(this::dto2vo)
@@ -94,7 +100,7 @@ public class WordCountController {
         return fileWordCountVo;
     }
 
-    @PostMapping("/file/{fileUid}/words")
+    @GetMapping("/file/{fileUid}/words")
     public FileWordCountVo getCountOfWords(
             @PathVariable int fileUid,
             @RequestBody List<String> words,
@@ -102,9 +108,11 @@ public class WordCountController {
     ) throws IOException {
         if (fileUid <= 0 || CollectionUtils.isEmpty(words)) {
             response.sendError(400, "非法参数");
+            return null;
         }
         if (!judgeTaskIsValidOfFile(fileUid)) {
             response.sendError(404, "文件不存在或不完整，或无计数任务结果");
+            return null;
         }
         List<DaoWordCountDto> dtoList = wordCountDaoService.queryCountByWords(fileUid, words);
         List<WordCountVo> wordCountVoList = null;
@@ -124,10 +132,11 @@ public class WordCountController {
         DaoWordCountTaskDto taskDto = wordCountTaskDaoService.getByTaskId(taskId);
         if (Objects.isNull(taskDto)) {
             response.sendError(404, "Task Not Found");
+            return null;
         }
-
         if (WordCountTaskStatusEnums.EXCEPTION.getStatus().equals(taskDto.getStatus())) {
             response.sendError(500, "Task Exception of " + taskId);
+            return null;
         }
         if (WordCountTaskStatusEnums.FINISHED.getStatus().equals(taskDto.getStatus())) {
             FileWordCountTaskVo vo = new FileWordCountTaskVo();
@@ -142,8 +151,9 @@ public class WordCountController {
         if (progress < 0) {
             wordCountTaskDaoService.updateTaskStatus(taskId, WordCountTaskStatusEnums.EXCEPTION);
             response.sendError(500, "Task Exception of " + taskId);
+            return null;
         }
-        if (progress > 99.9999) {
+        if (progress > 0.9999) {
             wordCountTaskDaoService.updateTaskStatus(taskId, WordCountTaskStatusEnums.FINISHED);
         }
         log.info("task:{} 正在进行中进度:{}", taskId, progress);
@@ -151,7 +161,7 @@ public class WordCountController {
         FileWordCountTaskVo vo = new FileWordCountTaskVo();
         vo.setTaskId(taskDto.getTaskId());
         vo.setFileUid(taskDto.getFileUid());
-        vo.setProgress(progress);
+        vo.setProgress(progress * 100);
         return vo;
     }
 
