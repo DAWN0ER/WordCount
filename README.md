@@ -1,108 +1,50 @@
-![服务框架图](./img/服务框架图.png)
+# 基于 MapReduce 想法的分词计数服务 V2.0
 
+简介: 这是一个基于 RPC 的负载均衡和 Kafka 的动态 Partition 策略的 MapReduce 思想的分布式程序框架。
 
+主要是为了练习和丰富技术栈，框架设计很不严谨, 这是重构后的第二个版本，依旧正在更新中。
 
+## 项目框架:
 
+***待完成中***
 
-简介: 一个基于 RPC 和 Kafka 的 MapReduce 分布式程序框架, 主要是为了练习, 框架设计可能不太严谨, 后续会继续改善
+## 项目模块
 
-## 项目大致框架:
+- DatabaseProxy : 一个 MySQl 的代理远程调用服务
+- WordCountMain : Web 后端服务，用于提供 http 接口
+- Workers : Worker 服务，可横向扩展，基于 Dubbo + ZooKeeper 来做负载均衡策略
+- Reducer : Reducer 服务，可横向扩展，基于 Partition 的动态扩展策略（缺陷是最大数量受限于 Partition 数量）
 
-- 主程序模块
+- mq-domain : 消息队列实体类
+- word-count-common : RPC 接口和相关实体
 
-  - 分块存储结构(简单实现)
-  - MapReduce Client
-- MapReduce RPC (重点)
+## 接口文档
 
-  - **框架: Nacos + Dubbo (业内优选)**
-    - 注册中心+负载均衡: nacos 自动实现
-  - Workers (实例集群)
-    - 创建订单
-    - 获取订单进度
-    - 加载文件块并处理后发送给 kafka
-      - 读取一定范围的 Chunk [begin - end]
-      - 尽早返回, 采用线程池并发读 file chunk 策略
-      - 对每个 Chunk 进行分词, 过滤出有效词条
-      - 对词条进行 Hash 分配 Partition
-      - 构造消息发送, 消息回调更新订单的进度
-    - 用户服务(返回高频词计数列表)
-  - Kafka (Mapper)
-  
-    - 一个 topic 下面多个 Partition 实现 Mapper 的功能
-    - 对消费者组(Reduce)自动分配, 可扩展性高
-    - 增加扩展性的同时, 采用粘性策略, 这样保证同一个 Reduce 的服务实例可以尽消费可能相似的中间信息
-  - Reduce (消费者集群) 
-  
-    - 对批次的 Message 进行消费, 统计词频后写入数据库
+**Restful API**
 
+/api/v2/file
 
+| 功能   | 方法   | 路径                  | RequestBody          |
+|------|------|---------------------|----------------------|
+| 上传文件 | POST | /upload             | [MultipartFile] file |
+| 下载文件 | GET  | /download/{fileUid} | -                    |
 
-## 接口框架
+/api/v2/word-count
 
-![程序接口结构](./img/程序接口结构.png)
-
-## Details:
-
-### 项目前置条件:
-
-- 已经实现高可用的可靠分布式大型文件分块存储系统，本次项目中暂时用ShardingSphere + MySQL 代替
-
-- 分块的文件已经储存在数据库中，并且 Worker 集群可以直接进行读取
+| 功能           | 方法   | 路径/参数                   | RequestBody               |
+|--------------|------|-------------------------|---------------------------|
+| 开启计数         | POST | /count                  | [JSON] int fileUid        |
+| 获取进度         | GET  | /progress/{taskId}      | -                         |
+| topK热点词      | GET  | /file/{fileUid}/top/{K} | -                         |
+| 获取指定words的计数 | GET  | /file/{fileUid}/words   | [JSON] List<String> words |
 
 ### 项目进度
 
-- [x] 配置 dubbo + nacos 环境
+基本功能完成，联调测试完成
 
-- [x] parent maven 配置 + RPC 接口设计 + RPC 配置
-
-- [x] 实现简单的分布式(单机模拟)分块存储
-  - [x] 数据表设计, FileChunkMapper 设计
-  - [x] Controller 设计, VO 设计
-  - [x] Service 实现: 简单文本分块储存
-  
-- [x] WordCountClient (本地)
-  - [x] 接口
-  
-  ```java
-  public interface WordCountClientService {
-      
-      void startCountWord(int fileUID); // 有事直接抛异常
-      float getProgress(int fileUID);
-      List<String> getWords(int fileUID);
-      
-  }
-  ```
-  
-  - [x] 实现类 Client 通过 RPC 调用 Worker 
-  
-- [x] Worker 
-  
-  - [x] RPC 接口
-  
-  ```java
-  public interface WorkerService {
-  
-      int loadFile(int fileUID, int chunkBegin, int chunkNum);
-      float getProgress(int fileUID);
-      List<String> getWords(int fileUID);
-      int createOrder(int fileUID, int chunkNum);
-  
-  }
-  ```
-  
-  - [x] 线程池并发 IO 读取文件 chunks
-  - [x] HanLP 分词, 对每个 chunk 里面词按照 partition 分割, 构造消息(JSON), 传入 kafka
-  - [x] kafka 回调函数同步进度 (redisson 原子类计数 + 分布式锁原子更新 MySQL), 减少对 MySQL 的 IO
-  - [x] 获取 word list
-  
-  > 统计时需要不断刷新插入, 统计后数据不会有变化, 但是统计完成后创建索引又会影响其他文件的插入, 毕竟读多写少的, 还是 Redis 优化吧
-  
-- [x] Reducer
-
-  - [x] 处理消息并且批量存入 MySQL, MyBatis 设置为 batch 处理
-  - [x] 分布式锁, 解决 Insert on duplicate key 的线程安全问题, 由于每次拉取消息来自同一个 partition, 只有消费同一个 partiton 才会产生线程冲突的问题, 因此以 file+partition 作为比较细粒度的 lock key
-
-
+- [ ] WebSocket 实现对客户端主动通信
+- [ ] Redis 任务存储过期和延时队列线程池更新任务状态
+- [ ] 定时任务清除异常任务和计数表脏数据
 
 ## Tips:
 
@@ -112,46 +54,12 @@
 >
 > 这两次 Hash 务必才用不同的 Hash 算法避免 Hash 冲突的问题，因为每个 Partition 内部的所有的 word 都满足 **hash % partition_num = partition**，同时 reducer 在整合数据的时候使用的 HashMap 里面，每个 word 插入数组的位置为 **hash % ArrayLength = idx** 如果这个时候数组的长度正好是 partition 数量的倍数，那么所有的 word 都会插入到 **idx = partition + k * partition_num** 的位置，造成严重的 Hash 冲突。
 >
-> 目前解决方案是两次 hash 使用不同的 hash 函数，第一次 hash 使用 murmurhash 而第二次采用 java 默认的 hashcode。
+> 目前解决方案是两次 hash 使用不同的 hash 函数。
 
-### Kafka 的一些心得:
+### WebSocket
 
-> Kafka 传输字符串是最方便的, 传输其他的类还需要通过自己实现字符串序列化, 并且两边的 Kafka 需要同时依赖这个序列化类和消息类, 同时存在序列化导致的消息过长的问题, 我的解决思路是直接定义一个 CustomMessage.class 在公共模块中, 通过 JSON 序列化为字符串传输(尽量缩减 JOSN 的 name), 不使用 Kafka 的序列化器而直接使用 Spring Boot 自带的 JSON 工具和 @JsonProperty 注解完成, 同时序列化和逆序列化都在这个公共模块内部实现, 我是采用内部静态类的静态方法等完成, 这样便于维护也比较方便
->
-> Kafka 在配置 yml 的时候可以在 listener 中使用 batch type, @KafkaListener 就可以直接实现消息的批量消费了, 并且可以设置并发量, 不过对于我们这种计算有点密集的功能(考虑几百个词的去重和统计), 并发可以不使用并发, 同时关闭自动提交, 改为每个 Batch 自动提交, 将提交任务交给 listener 
->
-> 在 Kafka send 之后会返回一个 CompletableFuture 的包装类, 可以在后面这样调用异步处理, 完成消息消费完成进度管理
->
-> ```
-> kafka.send(msg).addCallBack(
-> 	success -> {
-> 		// 返回消费的 SendRecord 可能是 null
-> 	},
-> 	failure -> {
-> 		// 失败错误信息的 Throwable
-> 	}
-> )
-> ```
->
-> 配置 kafka 使用 docker 是最方便的
-
-## WebSocket + AOP
 > WebSocket 是一个依赖 Http 的双工通信协议, 通过这个协议就可以实现服务端对客户端的通知和消息推送, 在这个项目中, 主要用于向客户端推送消息进度
-> 
+>
 > 在实践过程中给, WebSocket 常常用于业务结束之后给推送消息, 为了避免侵入式地写入业务中, 并且为了更加灵活遵守开闭原则, 可以采用 AOP 切面织入的方式去完成具体业务结束后推送通知的逻辑
-> 
+>
 > Spring Boot 提供了比较方便的 AOP 实现, 可以优雅地通过注解的方式完成日志记录, 消息推送等功能
-
-
-
-
-## TODO
-
-- [ ] 分布式事务 (简化为消费幂等处理)
-  - 由于上下游任务单靠 MQ 桥接, 当下游消费出现问题的时候, 保证不会重复消费和消费并且失败的消息能够被再次精却构造, 也满足幂等的条件
-- [ ] Reducer 作为下游任务在上游任务错误时的回滚逻辑
-  - 目前方案中的回滚逻辑过于粗暴了, 并且存在不幂等的问题, 
-  - 同时 on duplicate key update 会有死锁和主键疯狂自增的问题, 改为通过事务和**乐观锁**先查再更新, 同时解决 update 的非幂等问题
-- [X] Restful api 设计(后端接口设计, 简单 json)
-- [X] WebSocket + AOP
-- [ ] AOP + Log
