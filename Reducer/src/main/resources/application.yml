@@ -1,18 +1,12 @@
 server:
-  port: 23501
+  port: 23901
 spring:
   application:
     name: reducer-service
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/file_db?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
-    username: root
-    password: 1234
   redis:
     port: 6379
     host: localhost
-    database: 13
-
+    database: 12
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -21,8 +15,16 @@ spring:
       group-id: word-count-reducers
       max-poll-records: 20
     listener:
-      type: batch
-      ack-mode: batch
+      type: BATCH
+      ack-mode: BATCH
       concurrency: 4
-mybatis:
-  executor-type: batch
+dubbo:
+  application:
+    name: reducer-service
+  registry:
+    address: zookeeper://localhost:2181
+    group: wordcount
+  protocol:
+    name: dubbo
+    port: 22333
+    serialization: gson

@@ -3,26 +3,35 @@ server:
 spring:
   application:
     name: wordcount-service
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/file_db?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
-    username: root
-    password: 1234
+  servlet:
+    multipart:
+      max-file-size: 1024MB # 单个文件大小
+      max-request-size: 10240MB # 总文件大小（允许存储文件的文件夹大小）
   redis:
     port: 6379
     host: localhost
-    database: 11
+    database: 12
 mybatis:
-  executor-type: batch
+  executor-type: SIMPLE # 大量处理的数据量都到千级别了
 
+datasource:
+  primary:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/word_count?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
+    hikari:
+      minimum-idle: 10 # 池中维护的最小空闲连接数，默认为 10 个。
+      maximum-pool-size: 10 # 池中最大连接数，包括闲置和使用中的连接，默认为 10 个。
+    mapper-locations: classpath:mappers/primary/*.xml
 
 dubbo:
   application:
     name: wordcount-service
   registry:
-    address: nacos://127.0.0.1:8848
-    username: nacos
-    password: nacos
+    address: zookeeper://localhost:2181
+    group: wordcount
   protocol:
     name: dubbo
     port: 33305
+    serialization: gson

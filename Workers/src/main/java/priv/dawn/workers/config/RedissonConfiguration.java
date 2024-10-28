@@ -20,7 +20,8 @@ public class RedissonConfiguration {
     @Bean("workerRedisson")
     public RedissonClient workerRedisson() {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port)
+        config.useSingleServer()
+                .setAddress("redis://" + host + ":" + port)
                 .setDatabase(db);
         return Redisson.create(config);
     }

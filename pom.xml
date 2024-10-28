@@ -10,11 +10,12 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>map-reduce-api</module>
+        <module>DatabaseProxy</module>
         <module>WordCountMain</module>
         <module>Workers</module>
         <module>Reducer</module>
-        <module>kafka-massage</module>
+        <module>word-count-common</module>
+        <module>mq-domain</module>
     </modules>
 
     <properties>
@@ -23,9 +24,9 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <!--版本控制写在这-->
         <spring-boot.version>2.6.13</spring-boot.version>
         <dubbo.version>3.0.9</dubbo.version>
-        <nacos.version>2.3.2</nacos.version>
     </properties>
 
     <dependencyManagement>
@@ -38,6 +39,18 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.22</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
 
             <!-- MyBatis 配置-->
             <dependency>
@@ -45,39 +58,58 @@
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>2.3.1</version>
             </dependency>
-
-            <!-- Custom API 配置 -->
             <dependency>
-                <groupId>priv.dawn</groupId>
-                <artifactId>map-reduce-api</artifactId>
-                <version>0.01</version>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-core</artifactId>
+                <version>${mybatis-generator.version}</version>
             </dependency>
 
             <!-- Dubbo 配置-->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-spring-boot-starter</artifactId>
-                <version>${dubbo.version}</version>
+                <version>3.1.0</version>
             </dependency>
-            <!-- Nacos 配置-->
+            <!-- 推荐 Zookeeper Server 3.8.0+ 版本 -->
             <dependency>
-                <groupId>com.alibaba.nacos</groupId>
-                <artifactId>nacos-client</artifactId>
-                <version>${nacos.version}</version>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-zookeeper-curator5-spring-boot-starter</artifactId>
+                <version>3.3.0</version>
             </dependency>
-            <!-- Dubbo 配置结束-->
-
             <dependency>
-                <groupId>priv.dawn</groupId>
-                <artifactId>kafka-massage</artifactId>
-                <version>0.01</version>
+                <groupId>org.apache.dubbo.extensions</groupId>
+                <artifactId>dubbo-serialization-gson</artifactId>
+                <version>3.3.0</version>
             </dependency>
 
-<!--            Redisson 配置-->
+            <!-- Redisson 配置 -->
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>3.5.4</version>
+            </dependency>
+
+            <!-- 通用开发工具配置 -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>31.1-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <!-- HanLP -->
+            <dependency>
+                <groupId>com.hankcs</groupId>
+                <artifactId>hanlp</artifactId>
+                <version>portable-1.7.6</version>
             </dependency>
 
         </dependencies>

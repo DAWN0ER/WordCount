@@ -1,0 +1,29 @@
+server:
+  port: 23405
+spring:
+  application:
+    name: database-proxy
+mybatis:
+  executor-type: SIMPLE # 大量处理的数据量都到千级别了
+
+datasource:
+  primary:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/word_count?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
+    hikari:
+      minimum-idle: 10 # 池中维护的最小空闲连接数，默认为 10 个。
+      maximum-pool-size: 10 # 池中最大连接数，包括闲置和使用中的连接，默认为 10 个。
+    mapper-locations: classpath:mappers/primary/*.xml
+
+dubbo:
+  application:
+    name: database-proxy
+  registry:
+    address: zookeeper://localhost:2181
+    group: wordcount
+  protocol:
+    name: dubbo
+    port: 33307
+    serialization: gson

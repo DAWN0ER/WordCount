@@ -3,11 +3,6 @@ server:
 spring:
   application:
     name: worker-service
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/file_db?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8
-    username: root
-    password: 1234
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -22,11 +17,9 @@ dubbo:
   application:
     name: worker-service
   registry:
-    address: nacos://127.0.0.1:8848
-    username: nacos
-    password: nacos
-  scan:
-    base-packages: priv.dawn.workers.service.impl
+    address: zookeeper://localhost:2181
+    group: wordcount
   protocol:
     name: dubbo
     port: 33302
+    serialization: gson
