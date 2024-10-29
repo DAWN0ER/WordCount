@@ -6,15 +6,17 @@
 
 ## 项目框架:
 
-***待完成中***
+![项目框架](./img/StreamMapReduce.png)
 
 ## 项目模块
 
+服务模块：
 - DatabaseProxy : 一个 MySQl 的代理远程调用服务
 - WordCountMain : Web 后端服务，用于提供 http 接口
 - Workers : Worker 服务，可横向扩展，基于 Dubbo + ZooKeeper 来做负载均衡策略
 - Reducer : Reducer 服务，可横向扩展，基于 Partition 的动态扩展策略（缺陷是最大数量受限于 Partition 数量）
 
+实体模块：
 - mq-domain : 消息队列实体类
 - word-count-common : RPC 接口和相关实体
 
@@ -57,9 +59,3 @@
 > 目前解决方案是两次 hash 使用不同的 hash 函数。
 
 ### WebSocket
-
-> WebSocket 是一个依赖 Http 的双工通信协议, 通过这个协议就可以实现服务端对客户端的通知和消息推送, 在这个项目中, 主要用于向客户端推送消息进度
->
-> 在实践过程中给, WebSocket 常常用于业务结束之后给推送消息, 为了避免侵入式地写入业务中, 并且为了更加灵活遵守开闭原则, 可以采用 AOP 切面织入的方式去完成具体业务结束后推送通知的逻辑
->
-> Spring Boot 提供了比较方便的 AOP 实现, 可以优雅地通过注解的方式完成日志记录, 消息推送等功能
